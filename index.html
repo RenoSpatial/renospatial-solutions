@@ -135,6 +135,7 @@
 
   /* --- Hide decorative graphics --- */
   html.a11y-noimg-1 #net,
+  html.a11y-noimg-1 .section-fx,
   html.a11y-noimg-1 .map-lines,
   html.a11y-noimg-1 .card .icon,
   html.a11y-noimg-1 .marquee { display: none !important; }
@@ -658,7 +659,20 @@
   }
 
   /* ---------- Sections ---------- */
-  section { padding: 6rem 0; position: relative; }
+  section { padding: 6rem 0; position: relative; overflow: hidden; }
+
+  /* per-section particle backdrop, kept subtle so text stays readable */
+  .section-fx {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  section > .wrap { position: relative; z-index: 1; }
 
   .kicker {
     text-transform: uppercase;
@@ -1007,6 +1021,7 @@
 
   <!-- ============ About / Pillars ============ -->
   <section id="about">
+    <canvas class="section-fx" id="fxAbout" aria-hidden="true"></canvas>
     <div class="wrap">
       <p class="kicker reveal">About</p>
       <h2 class="reveal">Innovation <span class="grad">+</span> Automation <span class="grad">+</span> Integration</h2>
@@ -1063,6 +1078,7 @@
 
   <!-- ============ Contact ============ -->
   <section id="contact">
+    <canvas class="section-fx" id="fxContact" aria-hidden="true"></canvas>
     <div class="wrap">
       <p class="kicker reveal">Contact</p>
       <h2 class="reveal">Let's build something <span class="grad">efficient</span></h2>
@@ -1239,34 +1255,40 @@
   }
 
   /* =====================================================================
-     Particle map that periodically morphs into the Renospatial logo
+     Particle field — one instance per section:
+       hero     black hole + brain, morphing into the Renospatial logo
+       about    city traffic
+       contact  Milky Way
      ===================================================================== */
-  var canvas = document.getElementById("net");
-  var ctx = canvas.getContext("2d");
-  var particles = [];
-  var targets = [];
-  var mouse = { x: null, y: null };
-  var LINK_DIST = 130;
-  var running = false;
-  var rafId = null;
-
   var GOLD = { r: 240, g: 197, b: 94 };
   var BLUE = { r: 111, g: 163, b: 232 };
-
-  // morph state machine
-  var FIRST_DRIFT = 4500, DRIFT = 8500, FORM = 3400, HOLD = 5500;
-  var mode = "drift";
-  var phaseStart = performance.now();
-  var driftDur = FIRST_DRIFT;
-  var formProgress = 0;
-
-  // drift patterns cycle: network -> Milky Way -> city traffic -> black hole -> brain
-  var patterns = ["net", "galaxy", "roads", "hole", "brain"];
-  var patternIdx = 0;
-  var pattern = "net";
+  var LINK_DIST = 130;
   var patternLinkMult = { net: 1, galaxy: 0.5, roads: 0.5, hole: 0.4, brain: 0.7 };
-  var holeVis = 0;   // fade of the black-hole core / photon ring
-  var roadGX = 7, roadGY = 5;  // city grid: vertical / horizontal street counts
+  var fields = [];
+
+  function createField(canvas, cfg) {
+    var ctx = canvas.getContext("2d");
+    var host = canvas.parentElement;
+    var particles = [];
+    var targets = [];
+    var mouse = { x: null, y: null };
+    var running = false;
+    var rafId = null;
+
+    // morph state machine (hero only)
+    var FIRST_DRIFT = 4500, DRIFT = 8500, FORM = 3400, HOLD = 5500;
+    var mode = "drift";
+    var phaseStart = performance.now();
+    var driftDur = FIRST_DRIFT;
+    var formProgress = 0;
+
+    var patterns = cfg.patterns;
+    var patternIdx = 0;
+    var pattern = patterns[0];
+    var density = cfg.density || 3200;
+    var maxDots = cfg.maxDots || 340;
+    var holeVis = 0;   // fade of the black-hole core / photon ring
+    var roadGX = 7, roadGY = 5;  // city grid: vertical / horizontal street counts
 
   /* Sample opaque pixels of any painter drawn in a 300x300 space. */
   function samplePoints(painter) {
@@ -1652,18 +1674,19 @@
   }
 
   function sizeCanvas() {
-    var hero = canvas.parentElement;
+    var w = host.clientWidth, h = host.clientHeight;
+    if (!w || !h) return;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = hero.clientWidth * dpr;
-    canvas.height = hero.clientHeight * dpr;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    seed(hero.clientWidth, hero.clientHeight);
-    buildTargets(hero.clientWidth, hero.clientHeight);
-    initPattern(hero.clientWidth, hero.clientHeight, performance.now());
+    seed(w, h);
+    if (cfg.morph) buildTargets(w, h);
+    initPattern(w, h, performance.now());
   }
 
   function seed(w, h) {
-    var count = Math.min(Math.floor((w * h) / 3200), 340);
+    var count = Math.min(Math.floor((w * h) / density), maxDots);
     particles = [];
     for (var i = 0; i < count; i++) {
       particles.push({
@@ -1687,28 +1710,30 @@
   }
 
   function frame(now) {
-    var w = canvas.parentElement.clientWidth;
-    var h = canvas.parentElement.clientHeight;
+    var w = host.clientWidth;
+    var h = host.clientHeight;
     ctx.clearRect(0, 0, w, h);
 
-    /* ---- state transitions ---- */
-    if (mode === "drift" && now - phaseStart > driftDur && targets.length) {
-      mode = "form";
-      phaseStart = now;
-      particles.forEach(function (pp) {
-        pp.delay = Math.random() * 0.45;         // staggered departure
-        pp.curve = 0.7 + Math.random() * 0.6;    // vortex strength (same direction)
-      });
-    } else if (mode === "form") {
-      formProgress = Math.min((now - phaseStart) / FORM, 1);
-      if (formProgress >= 1) { mode = "hold"; phaseStart = now; }
-    } else if (mode === "hold" && now - phaseStart > HOLD) {
-      mode = "drift";
-      phaseStart = now;
-      driftDur = DRIFT;
-      patternIdx = (patternIdx + 1) % patterns.length;
-      pattern = patterns[patternIdx];
-      initPattern(w, h, now);
+    /* ---- state transitions (logo morph runs on the hero only) ---- */
+    if (cfg.morph) {
+      if (mode === "drift" && now - phaseStart > driftDur && targets.length) {
+        mode = "form";
+        phaseStart = now;
+        particles.forEach(function (pp) {
+          pp.delay = Math.random() * 0.45;         // staggered departure
+          pp.curve = 0.7 + Math.random() * 0.6;    // vortex strength (same direction)
+        });
+      } else if (mode === "form") {
+        formProgress = Math.min((now - phaseStart) / FORM, 1);
+        if (formProgress >= 1) { mode = "hold"; phaseStart = now; }
+      } else if (mode === "hold" && now - phaseStart > HOLD) {
+        mode = "drift";
+        phaseStart = now;
+        driftDur = DRIFT;
+        patternIdx = (patternIdx + 1) % patterns.length;
+        pattern = patterns[patternIdx];
+        initPattern(w, h, now);
+      }
     }
 
     var logoMix = mode === "form" ? formProgress : mode === "hold" ? 1 : 0;
@@ -1868,44 +1893,100 @@
     if (rafId) cancelAnimationFrame(rafId);
   }
 
-  sizeCanvas();
+    sizeCanvas();
 
-  if (reduceMotion) {
-    // static: show the formed logo
-    if (targets.length) {
-      particles.forEach(function (p, i) {
-        var t = targets[i];
-        if (t) { p.x = t.x; p.y = t.y; }
+    var visible = true;
+
+    if (reduceMotion) {
+      // static: hero shows the formed logo, section fields a single frame
+      if (cfg.morph && targets.length) {
+        particles.forEach(function (p, i) {
+          var t = targets[i];
+          if (t) { p.x = t.x; p.y = t.y; }
+        });
+        mode = "hold";
+        formProgress = 1;
+        logoAlpha = 0.55;
+      }
+      frame(performance.now());
+      running = false;
+    } else {
+      start();
+
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          visible = entries[0].isIntersecting;
+          visible && !document.hidden && !animPaused ? start() : stop();
+        }).observe(host);
+      }
+
+      host.addEventListener("mousemove", function (e) {
+        var r = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - r.left;
+        mouse.y = e.clientY - r.top;
       });
-      mode = "hold";
-      formProgress = 1;
-      logoAlpha = 0.55;
-    }
-    frame(performance.now());
-    running = false;
-  } else {
-    start();
-
-    document.addEventListener("visibilitychange", function () {
-      (document.hidden || animPaused) ? stop() : start();
-    });
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (entries) {
-        entries[0].isIntersecting && !document.hidden && !animPaused
-          ? start() : stop();
-      }).observe(canvas.parentElement);
+      host.addEventListener("mouseleave", function () {
+        mouse.x = null;
+        mouse.y = null;
+      });
     }
 
-    canvas.parentElement.addEventListener("mousemove", function (e) {
-      var r = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - r.left;
-      mouse.y = e.clientY - r.top;
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        sizeCanvas();
+        if (cfg.morph) {
+          mode = "drift";
+          phaseStart = performance.now();
+          driftDur = FIRST_DRIFT;
+        }
+        if (reduceMotion) frame(performance.now());
+      }, 150);
     });
-    canvas.parentElement.addEventListener("mouseleave", function () {
-      mouse.x = null;
-      mouse.y = null;
+
+    var api = {
+      setPaused: function (paused) {
+        if (paused || !visible) {
+          stop();
+        } else if (!reduceMotion) {
+          phaseStart = performance.now();
+          start();
+        }
+      }
+    };
+    fields.push(api);
+    return api;
+  }
+
+  /* --- one field per section --- */
+  createField(document.getElementById("net"), {
+    patterns: ["hole"], morph: true
+  });
+
+  var fxAbout = document.getElementById("fxAbout");
+  if (fxAbout) {
+    createField(fxAbout, {
+      patterns: ["roads"], morph: false, density: 6000, maxDots: 130
     });
   }
+
+  var fxContact = document.getElementById("fxContact");
+  if (fxContact) {
+    createField(fxContact, {
+      patterns: ["brain"], morph: false, density: 4600, maxDots: 210
+    });
+  }
+
+  function setMotionPaused(paused) {
+    animPaused = paused;
+    document.body.classList.toggle("anim-paused", paused);
+    fields.forEach(function (f) { f.setPaused(paused); });
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    fields.forEach(function (f) { f.setPaused(document.hidden || animPaused); });
+  });
 
   /* =====================================================================
      Accessibility toolbar — display preferences, saved per visitor.
@@ -1935,17 +2016,6 @@
     a11yState = JSON.parse(localStorage.getItem(A11Y_KEY)) || {};
   } catch (e) {
     a11yState = {};
-  }
-
-  function setMotionPaused(paused) {
-    animPaused = paused;
-    document.body.classList.toggle("anim-paused", paused);
-    if (paused) {
-      stop();
-    } else if (!reduceMotion) {
-      phaseStart = performance.now();
-      start();
-    }
   }
 
   function applyA11y() {
@@ -2033,17 +2103,6 @@
 
   applyA11y();   // restore saved preferences on load
 
-  var resizeTimer;
-  window.addEventListener("resize", function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      sizeCanvas();
-      mode = "drift";
-      phaseStart = performance.now();
-      driftDur = FIRST_DRIFT;
-      if (reduceMotion) frame(performance.now());
-    }, 150);
-  });
 })();
 </script>
 
