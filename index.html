@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renospatial Solutions — Power Platform + Enterprise GIS + AI</title>
+<meta name="description" content="Automating and integrating your business workflows by innovating with Microsoft Power Platform, Enterprise GIS, FME and AI. Parksville, British Columbia, Canada.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%234a7fc1' stroke-width='7'/%3E%3Ctext x='50' y='67' font-size='52' font-weight='700' text-anchor='middle' fill='%236fa3e8' font-family='Georgia'%3ER%3C/text%3E%3Ccircle cx='71' cy='14' r='9' fill='%23f0c55e'/%3E%3Ccircle cx='91' cy='54' r='9' fill='%23f0c55e'/%3E%3Ccircle cx='36' cy='89' r='9' fill='%23f0c55e'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0a1322;
+    --bg-soft: #0e1a2e;
+    --panel: #122238;
+    --line: rgba(150, 175, 215, 0.15);
+    --ink: #edf1f8;
+    --ink-soft: #a3b2c9;
+    --gold: #f0c55e;
+    --gold-deep: #dfa63a;
+    --blue: #6fa3e8;
+    --blue-deep: #3d6ea8;
+    --grad: linear-gradient(90deg, #f7d98c, #eeb64b, #6fa3e8);
+    --max: 1100px;
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: rgba(240, 197, 94, 0.35); }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- Accessibility ---------- */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: -100px; left: 1rem;
+    z-index: 200;
+    background: var(--gold);
+    color: #1a1204;
+    font-weight: 700;
+    padding: 0.7rem 1.2rem;
+    border-radius: 0 0 8px 8px;
+    text-decoration: none;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus { top: 0; }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* WCAG 2.2.2 — user can pause all decorative motion */
+  .anim-paused * { animation-play-state: paused !important; }
+
+  #pauseAnim {
+    position: fixed;
+    left: 1.4rem;
+    bottom: 1.4rem;
+    z-index: 60;
+    height: 46px;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(240, 197, 94, 0.35);
+    background: var(--panel);
+    color: var(--ink);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #pauseAnim:hover { background: var(--bg-soft); }
+  #pauseLabel { margin-left: 0.4rem; }
+
+  /* On phones the floating controls shrink to icons so they stop
+     covering body text */
+  @media (max-width: 640px) {
+    #pauseAnim {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      left: 1rem;
+      bottom: 1rem;
+      font-size: 0.95rem;
+      background: rgba(18, 34, 56, 0.85);
+      backdrop-filter: blur(4px);
+    }
+    #pauseLabel { display: none; }
+    #toTop {
+      right: 1rem;
+      bottom: 1rem;
+      background: rgba(18, 34, 56, 0.85);
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  /* ---------- Scroll progress bar ---------- */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0;
+    background: var(--grad);
+    z-index: 100;
+    transition: width 0.1s linear;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+  }
+
+  header.scrolled {
+    background: rgba(10, 19, 34, 0.85);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 0 var(--line);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0.85rem 1.5rem;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+
+  .brand .logo { width: 38px; height: 38px; flex-shrink: 0; }
+
+  /* energy flowing from the R outward along the map routes */
+  .logo .route {
+    stroke-dasharray: 3 4;
+    animation: routeflow 1.6s linear infinite;
+  }
+  .logo .route:nth-of-type(2) { animation-delay: 0.4s; }
+  .logo .route:nth-of-type(3) { animation-delay: 0.8s; }
+  .logo .route:nth-of-type(4) { animation-delay: 1.2s; }
+
+  @keyframes routeflow { to { stroke-dashoffset: -14; } }
+
+  .brand .logo .node {
+    animation: nodepulse 2.6s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  .brand .logo .node:nth-of-type(2) { animation-delay: 0.6s; }
+  .brand .logo .node:nth-of-type(3) { animation-delay: 1.2s; }
+  .brand .logo .node:nth-of-type(4) { animation-delay: 1.8s; }
+
+  @keyframes nodepulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.72); }
+  }
+
+  nav ul { display: flex; gap: 1.8rem; list-style: none; }
+
+  nav a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.93rem;
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 3px;
+  }
+
+  nav a::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%; height: 2px;
+    background: var(--grad);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+
+  nav a:hover { color: var(--ink); }
+  nav a:hover::after { transform: scaleX(1); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 80% 60% at 75% 15%, rgba(240, 197, 94, 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 15% 85%, rgba(111, 163, 232, 0.10), transparent 60%),
+      var(--bg);
+  }
+
+  /* animated map graticule behind particles */
+  .map-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  .map-lines path {
+    fill: none;
+    stroke-width: 1.2;
+    stroke-dasharray: 7 11;
+    animation: dashdrift 40s linear infinite;
+  }
+
+  .map-lines .gold { stroke: rgba(240, 197, 94, 0.13); }
+  .map-lines .blue { stroke: rgba(111, 163, 232, 0.12); animation-direction: reverse; }
+
+  @keyframes dashdrift { to { stroke-dashoffset: -360; } }
+
+  #net {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    display: block;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 7rem 1.5rem 5rem;
+    width: 100%;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(240, 197, 94, 0.3);
+    background: rgba(18, 34, 56, 0.65);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    animation: floaty 6s ease-in-out infinite;
+  }
+
+  .chip .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 10px var(--gold);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.75); }
+  }
+
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .hero h1 {
+    margin-top: 1.4rem;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+
+  .hero h1 .grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% 100%;
+    animation: shimmer 6s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .rotator-line {
+    margin-top: 0.9rem;
+    font-size: clamp(1.3rem, 3.2vw, 2rem);
+    font-weight: 700;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  #rotator {
+    display: inline-block;
+    min-width: 7.5ch;
+    color: var(--gold);
+    border-right: 3px solid var(--gold);
+    padding-right: 4px;
+    white-space: nowrap;
+  }
+
+  .hero p.lede {
+    margin-top: 1.5rem;
+    max-width: 56ch;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--ink-soft);
+  }
+
+  .hero-ctas {
+    margin-top: 2.4rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 650;
+    font-size: 0.98rem;
+    padding: 0.85rem 1.7rem;
+    border-radius: 9px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(90deg, #f7d98c, #e8ab3c);
+    color: #1a1204;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(240, 197, 94, 0.35);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--line);
+    color: var(--ink);
+    background: rgba(18, 34, 56, 0.55);
+  }
+
+  .btn-ghost:hover {
+    transform: translateY(-3px);
+    background: var(--panel);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 1.4rem;
+    transform: translateX(-50%);
+    z-index: 2;
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 2rem;
+    line-height: 1;
+    border: 2px solid rgba(240, 197, 94, 0.55);
+    border-radius: 50%;
+    background: rgba(18, 34, 56, 0.55);
+    box-shadow: 0 0 18px rgba(240, 197, 94, 0.25);
+    animation: bob 1.8s ease-in-out infinite;
+    text-decoration: none;
+  }
+
+  .scroll-hint:hover {
+    background: rgba(240, 197, 94, 0.15);
+    box-shadow: 0 0 26px rgba(240, 197, 94, 0.45);
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translate(-50%, 0); opacity: 0.55; }
+    50% { transform: translate(-50%, 8px); opacity: 1; }
+  }
+
+  /* ---------- Tech marquee ---------- */
+  .marquee {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+    overflow: hidden;
+    padding: 1.1rem 0;
+    position: relative;
+  }
+
+  .marquee::before,
+  .marquee::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 90px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .marquee::before { left: 0; background: linear-gradient(90deg, var(--bg-soft), transparent); }
+  .marquee::after  { right: 0; background: linear-gradient(-90deg, var(--bg-soft), transparent); }
+
+  .marquee-track {
+    display: flex;
+    gap: 3.5rem;
+    width: max-content;
+    animation: scrollx 28s linear infinite;
+  }
+
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+
+  @keyframes scrollx {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .marquee span {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 3.5rem;
+  }
+
+  .marquee span::after {
+    content: "◆";
+    font-size: 0.6rem;
+    color: var(--gold);
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 6rem 0; position: relative; }
+
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+  }
+
+  h2 {
+    font-size: clamp(1.7rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.6rem;
+  }
+
+  h2 .grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .section-lede { color: var(--ink-soft); max-width: 62ch; margin-bottom: 3rem; }
+
+  /* ---------- Pillar cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 1.4rem;
+    perspective: 1200px;
+  }
+
+  .card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 2rem 1.7rem;
+    transition: transform 0.15s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--radius);
+    padding: 1px;
+    background: var(--grad);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .card:hover::before { opacity: 1; }
+  .card:hover { box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45); }
+
+  .card .icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    background: rgba(240, 197, 94, 0.09);
+    border: 1px solid rgba(240, 197, 94, 0.28);
+    transform: translateZ(30px);
+  }
+
+  .card h3 {
+    font-size: 1.25rem;
+    font-weight: 750;
+    margin-bottom: 0.6rem;
+    transform: translateZ(24px);
+  }
+
+  .card p {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    transform: translateZ(14px);
+  }
+
+  /* ---------- Animated pillar icons ---------- */
+  .icon .rays,
+  .icon .core,
+  .icon .gear-a,
+  .icon .gear-b,
+  .icon .inode {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* Innovation: rotating rays + pulsing core */
+  .icon .rays { animation: iconspin 16s linear infinite; }
+  .card:hover .rays { animation-duration: 4s; }
+
+  .icon .core { animation: corepulse 3s ease-in-out infinite; }
+
+  @keyframes iconspin { to { transform: rotate(360deg); } }
+
+  @keyframes corepulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.25); opacity: 0.7; }
+  }
+
+  /* Automation: meshing gears turning in opposite directions */
+  .icon .gear-a { animation: iconspin 8s linear infinite; }
+  .icon .gear-b { animation: iconspinrev 5.4s linear infinite; }
+  .card:hover .gear-a { animation-duration: 2.4s; }
+  .card:hover .gear-b { animation-duration: 1.6s; }
+
+  @keyframes iconspinrev { to { transform: rotate(-360deg); } }
+
+  /* Integration: nodes pulsing in sequence + data flowing along links */
+  .icon .inode { animation: corepulse 2.6s ease-in-out infinite; }
+  .icon .inode:nth-of-type(2) { animation-delay: 0.45s; }
+  .icon .inode:nth-of-type(3) { animation-delay: 0.9s; }
+
+  .icon .ilines {
+    stroke-dasharray: 3 4;
+    animation: lineflow 1.6s linear infinite;
+  }
+  .card:hover .ilines { animation-duration: 0.5s; }
+
+  @keyframes lineflow { to { stroke-dashoffset: -14; } }
+
+  /* ---------- Contact ---------- */
+  #contact {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 100%, rgba(240, 197, 94, 0.09), transparent 65%),
+      var(--bg-soft);
+    border-top: 1px solid var(--line);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .contact-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 2rem 1.8rem;
+  }
+
+  .contact-panel .row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.8rem 0;
+  }
+
+  .contact-panel .row + .row { border-top: 1px solid var(--line); }
+
+  .contact-panel a { color: var(--gold); text-decoration: none; font-weight: 600; }
+  .contact-panel a:hover { text-decoration: underline; }
+
+  .contact-panel .label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    display: block;
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    transition-delay: var(--d, 0s);
+  }
+
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    padding: 2rem 1.5rem 2.5rem;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--line);
+  }
+
+  /* ---------- Back to top ---------- */
+  #toTop {
+    position: fixed;
+    right: 1.4rem;
+    bottom: 1.4rem;
+    z-index: 60;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(240, 197, 94, 0.35);
+    background: var(--panel);
+    color: var(--gold);
+    font-size: 1.15rem;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  #toTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #toTop:hover { background: var(--bg-soft); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 800px) {
+    .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+    section { padding: 4.5rem 0; }
+  }
+
+  /* Tablet / large phone: tighten the pillar cards */
+  @media (max-width: 640px) {
+    section { padding: 3.5rem 0; }
+    .cards { gap: 1rem; }
+    .card { padding: 1.5rem 1.3rem; }
+    .card .icon {
+      width: 44px; height: 44px;
+      margin-bottom: 0.9rem;
+      border-radius: 10px;
+    }
+    .card h3 { font-size: 1.12rem; margin-bottom: 0.4rem; }
+    .card p { font-size: 0.92rem; }
+    .section-lede { margin-bottom: 2rem; }
+    .contact-panel { padding: 1.5rem 1.3rem; }
+  }
+
+  @media (max-width: 520px) {
+    nav ul { gap: 1rem; }
+    nav a { font-size: 0.85rem; }
+    .hero-inner { padding-top: 6rem; }
+  }
+
+  /* Small phones: keep the header on one line, reclaim side padding */
+  @media (max-width: 430px) {
+    .wrap { padding: 0 1.15rem; }
+    .nav { padding: 0.8rem 1.15rem; }
+    .brand { font-size: 0.88rem; gap: 0.5rem; }
+    .brand .logo { width: 30px; height: 30px; }
+    nav ul { gap: 0.9rem; }
+    nav a { font-size: 0.82rem; }
+    .card { padding: 1.35rem 1.15rem; }
+  }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#top">Skip to main content</a>
+
+<div id="progress" aria-hidden="true"></div>
+
+<header id="header">
+  <div class="nav">
+    <a class="brand" href="#top" aria-label="Renospatial Solutions home">
+      <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="lgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#6fa3e8"/>
+            <stop offset="1" stop-color="#2b5c94"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="42" stroke="url(#lgrad)" stroke-width="6"/>
+        <!-- map routes: drawn under the R so they emerge from the letter, energy flows outward -->
+        <g stroke="url(#lgrad)" stroke-width="2.6" stroke-linecap="round">
+          <path class="route" d="M58 33 C64 26 64 20 71 14"/>
+          <path class="route" d="M62 55 C72 55 80 57 91 54"/>
+          <path class="route" d="M40 52 C30 50 22 52 12 50"/>
+          <path class="route" d="M42 64 C40 76 40 80 36 89"/>
+        </g>
+        <text x="50" y="66" text-anchor="middle" font-size="48" font-weight="800" font-family="Georgia, 'Times New Roman', serif" fill="url(#lgrad)">R</text>
+        <circle class="node" cx="71" cy="14" r="8" fill="#f0c55e"/>
+        <circle class="node" cx="91" cy="54" r="8" fill="#f0c55e"/>
+        <circle class="node" cx="12" cy="50" r="6" fill="#f0c55e"/>
+        <circle class="node" cx="36" cy="89" r="8" fill="#f0c55e"/>
+      </svg>
+      Renospatial Solutions
+    </a>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ Hero ============ -->
+  <div class="hero">
+    <svg class="map-lines" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="gold" d="M-50,560 C160,470 320,600 520,510 C720,420 860,560 1060,470 C1160,425 1220,455 1260,440"/>
+      <path class="blue" d="M-50,470 C140,390 340,520 540,430 C740,340 880,480 1080,390 C1170,350 1230,375 1260,360"/>
+      <path class="gold" d="M-50,380 C120,310 360,440 560,350 C760,260 900,400 1100,310 C1180,275 1240,295 1260,280"/>
+      <path class="blue" d="M-50,290 C100,230 380,360 580,270 C780,180 920,320 1120,230 C1190,200 1245,215 1260,200"/>
+      <path class="gold" d="M-50,200 C80,150 400,280 600,190 C800,100 940,240 1140,150 C1200,123 1250,135 1260,120"/>
+    </svg>
+    <canvas id="net" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <span class="chip"><span class="dot"></span>Power Platform + Enterprise GIS + AI</span>
+      <h1>Renospatial <span class="grad">Solutions</span></h1>
+      <p class="rotator-line"><span aria-hidden="true">Driven by&nbsp;<span id="rotator">Innovation</span></span><span class="sr-only">Driven by Innovation, Automation, and Integration</span></p>
+      <p class="lede">Automating and integrating your business workflows by innovating with Microsoft Power Platform, Enterprise GIS, FME and AI.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#about">Learn More</a>
+        <a class="btn btn-ghost" href="#contact">Contact</a>
+      </div>
+    </div>
+    <a class="scroll-hint" href="#about" aria-label="Scroll to About section">▾</a>
+  </div>
+
+  <!-- ============ Tech marquee ============ -->
+  <p class="sr-only">Technologies: ArcGIS Enterprise, ArcGIS Online, Microsoft Power Platform, FME, Generative AI, Maps APIs, and Systems Integration.</p>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>ArcGIS Enterprise</span>
+      <span>ArcGIS Online</span>
+      <span>Microsoft Power Platform</span>
+      <span>FME</span>
+      <span>Generative AI</span>
+      <span>Maps APIs</span>
+      <span>Systems Integration</span>
+    </div>
+  </div>
+
+  <!-- ============ About / Pillars ============ -->
+  <section id="about">
+    <div class="wrap">
+      <p class="kicker reveal">About</p>
+      <h2 class="reveal">Innovation <span class="grad">+</span> Automation <span class="grad">+</span> Integration</h2>
+      <p class="section-lede reveal">A one-person team with a decade of GIS and IT management expertise, delivering tailored solutions that solve complex challenges and drive innovation.</p>
+
+      <div class="cards">
+
+        <div class="card reveal" style="--d: 0s">
+          <div class="icon">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path class="rays" d="M13 2 V5 M13 21 V24 M2 13 H5 M21 13 H24 M5.2 5.2 L7.3 7.3 M18.7 18.7 L20.8 20.8 M20.8 5.2 L18.7 7.3 M7.3 18.7 L5.2 20.8" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round"/>
+              <circle class="core" cx="13" cy="13" r="4.2" stroke="#6fa3e8" stroke-width="1.8"/>
+            </svg>
+          </div>
+          <h3>Innovation</h3>
+          <p>Renospatial Solutions combines cutting-edge technologies—ArcGIS Enterprise/Online, Microsoft Power Platform, FME, Maps APIs, and Generative AI—to enhance efficiency. Our versatile approach seamlessly integrates with existing systems, allowing us to tackle unique challenges innovatively.</p>
+        </div>
+
+        <div class="card reveal" style="--d: 0.12s">
+          <div class="icon">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g class="gear-a" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round">
+                <circle cx="10.5" cy="15" r="4.4"/>
+                <circle cx="10.5" cy="15" r="1.4" fill="#f0c55e" stroke="none"/>
+                <path d="M10.5 8.9 L10.5 10.6 M10.5 21.1 L10.5 19.4 M4.4 15 L6.1 15 M16.6 15 L14.9 15 M14.81 10.69 L13.61 11.89 M6.19 10.69 L7.39 11.89 M14.81 19.31 L13.61 18.11 M6.19 19.31 L7.39 18.11"/>
+              </g>
+              <g class="gear-b" stroke="#6fa3e8" stroke-width="1.6" stroke-linecap="round">
+                <circle cx="18.5" cy="7.5" r="2.9"/>
+                <circle cx="18.5" cy="7.5" r="1" fill="#6fa3e8" stroke="none"/>
+                <path d="M22.8 7.5 L21.4 7.5 M14.2 7.5 L15.6 7.5 M20.65 3.78 L19.95 4.99 M16.35 3.78 L17.05 4.99 M16.35 11.22 L17.05 10.01 M20.65 11.22 L19.95 10.01"/>
+              </g>
+            </svg>
+          </div>
+          <h3>Automation</h3>
+          <p>Renospatial Solutions' automation processes are seamlessly designed to automate and optimize data management while streamlining workflows. Whether it's enhancing efficiency, improving system performance, or ensuring reliable operations, our dependable automations empower organizations to achieve their goals with confidence.</p>
+        </div>
+
+        <div class="card reveal" style="--d: 0.24s">
+          <div class="icon">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path class="ilines" d="M9 6 H17 M7.5 8.6 L11.4 17.4 M18.5 8.6 L14.6 17.4" stroke="#a3b2c9" stroke-width="1.5"/>
+              <circle class="inode" cx="6" cy="6" r="3" stroke="#f0c55e" stroke-width="1.8"/>
+              <circle class="inode" cx="20" cy="6" r="3" stroke="#6fa3e8" stroke-width="1.8"/>
+              <circle class="inode" cx="13" cy="20" r="3" stroke="#f0c55e" stroke-width="1.8"/>
+            </svg>
+          </div>
+          <h3>Integration</h3>
+          <p>Renospatial Solutions specialize in integrating client's existing or new information systems for operational efficiency. Expertise in both GIS and IT systems, we streamline workflows and optimize data management. Our tailored solutions are designed to solve complex challenges and drive innovation and efficiency.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Contact ============ -->
+  <section id="contact">
+    <div class="wrap">
+      <p class="kicker reveal">Contact</p>
+      <h2 class="reveal">Let's build something <span class="grad">efficient</span></h2>
+      <div class="contact-grid">
+        <p class="section-lede reveal" style="margin-bottom: 0">
+          Renospatial Solutions specializes in integrating industry-leading technologies for operational efficiency. This one-person team, with deep GIS and IT systems knowledge, unites ArcGIS Enterprise/Online (Enterprise GIS), Microsoft Power Platform, FME, Generative AI, Maps APIs, and various information systems to streamline workflows and data management. With a decade of GIS and IT management expertise, tailored solutions are delivered to solve complex challenges and drive innovation.
+        </p>
+        <div class="contact-panel reveal" style="--d: 0.15s">
+          <div class="row">
+            <div>
+              <span class="label">Location</span>
+              Parksville, British Columbia, Canada
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <span class="label">Email</span>
+              <a href="mailto:rsun@renospatial.com">rsun@renospatial.com</a>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <span class="label">LinkedIn</span>
+              <a href="https://www.linkedin.com/company/renospatial" target="_blank" rel="noopener">linkedin.com/company/renospatial<span class="sr-only"> (opens in a new window)</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Copyright © <span id="year">2025</span> Renospatial Solutions — All Rights Reserved.
+</footer>
+
+<button id="pauseAnim" aria-pressed="false" aria-label="Pause motion"><span id="pauseIcon">⏸</span><span id="pauseLabel">Pause motion</span></button>
+<button id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var animPaused = false;
+
+  /* ---------- Footer year ---------- */
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* ---------- Header + progress + back-to-top on scroll ---------- */
+  var header = document.getElementById("header");
+  var progress = document.getElementById("progress");
+  var toTop = document.getElementById("toTop");
+
+  function onScroll() {
+    var y = window.scrollY;
+    header.classList.toggle("scrolled", y > 30);
+    toTop.classList.toggle("show", y > 600);
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  toTop.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
+  /* ---------- Reveal on scroll ---------- */
+  var revealEls = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add("visible");
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add("visible"); });
+  }
+
+  /* ---------- Rotating keyword (type / erase) ---------- */
+  var words = ["Innovation", "Automation", "Integration"];
+  var rotator = document.getElementById("rotator");
+
+  if (reduceMotion) {
+    rotator.textContent = words.join(" · ");
+    rotator.style.borderRight = "none";
+    rotator.style.whiteSpace = "normal";
+  } else {
+    var wi = 0, ci = words[0].length, deleting = false;
+    (function tick() {
+      if (animPaused) { setTimeout(tick, 400); return; }
+      var word = words[wi];
+      rotator.textContent = word.slice(0, ci);
+      var delay;
+      if (!deleting) {
+        if (ci < word.length) { ci++; delay = 90; }
+        else { deleting = true; delay = 1800; }
+      } else {
+        if (ci > 0) { ci--; delay = 45; }
+        else { deleting = false; wi = (wi + 1) % words.length; delay = 350; }
+      }
+      setTimeout(tick, delay);
+    })();
+  }
+
+  /* ---------- Marquee: duplicate track for seamless loop ---------- */
+  var track = document.getElementById("marqueeTrack");
+  track.innerHTML += track.innerHTML;
+
+  /* ---------- 3D tilt on pillar cards ---------- */
+  if (!reduceMotion && window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".card").forEach(function (card) {
+      card.addEventListener("mousemove", function (e) {
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform =
+          "rotateY(" + (px * 8) + "deg) rotateX(" + (py * -8) + "deg) translateY(-4px)";
+      });
+      card.addEventListener("mouseleave", function () {
+        card.style.transform = "";
+      });
+    });
+  }
+
+  /* =====================================================================
+     Particle map that periodically morphs into the Renospatial logo
+     ===================================================================== */
+  var canvas = document.getElementById("net");
+  var ctx = canvas.getContext("2d");
+  var particles = [];
+  var targets = [];
+  var mouse = { x: null, y: null };
+  var LINK_DIST = 130;
+  var running = false;
+  var rafId = null;
+
+  var GOLD = { r: 240, g: 197, b: 94 };
+  var BLUE = { r: 111, g: 163, b: 232 };
+
+  // morph state machine
+  var FIRST_DRIFT = 4500, DRIFT = 8500, FORM = 3400, HOLD = 5500;
+  var mode = "drift";
+  var phaseStart = performance.now();
+  var driftDur = FIRST_DRIFT;
+  var formProgress = 0;
+
+  // drift patterns cycle: network -> Milky Way -> city traffic -> black hole -> brain
+  var patterns = ["net", "galaxy", "roads", "hole", "brain"];
+  var patternIdx = 0;
+  var pattern = "net";
+  var patternLinkMult = { net: 1, galaxy: 0.5, roads: 0.5, hole: 0.4, brain: 0.7 };
+  var holeVis = 0;   // fade of the black-hole core / photon ring
+  var roadGX = 7, roadGY = 5;  // city grid: vertical / horizontal street counts
+
+  /* Sample opaque pixels of any painter drawn in a 300x300 space. */
+  function samplePoints(painter) {
+    var S = 300;
+    var c = document.createElement("canvas");
+    c.width = S; c.height = S;
+    var g = c.getContext("2d");
+    painter(g);
+    var d = g.getImageData(0, 0, S, S).data;
+    var pts = [];
+    for (var y = 0; y < S; y += 3) {
+      for (var x = 0; x < S; x += 3) {
+        var k = (y * S + x) * 4;
+        if (d[k + 3] > 150) pts.push({ x: x, y: y, gold: d[k] > d[k + 2] + 20 });
+      }
+    }
+    return pts;
+  }
+
+  /* Line-art brain (side profile) for the neural pattern. */
+  function paintBrain(g) {
+    g.strokeStyle = "#6fa3e8";
+    g.lineWidth = 9;
+    g.lineCap = "round";
+    // cortex outline
+    g.beginPath();
+    g.moveTo(52, 168);
+    g.bezierCurveTo(38, 120, 70, 60, 140, 52);
+    g.bezierCurveTo(205, 44, 255, 80, 252, 135);
+    g.bezierCurveTo(250, 165, 235, 185, 214, 194);
+    g.stroke();
+    // cerebellum
+    g.beginPath();
+    g.moveTo(214, 194);
+    g.bezierCurveTo(232, 208, 220, 232, 196, 228);
+    g.bezierCurveTo(178, 226, 170, 214, 172, 204);
+    g.stroke();
+    // brain stem
+    g.beginPath();
+    g.moveTo(178, 226);
+    g.bezierCurveTo(172, 240, 166, 248, 158, 258);
+    g.stroke();
+    // underside
+    g.beginPath();
+    g.moveTo(172, 204);
+    g.bezierCurveTo(140, 210, 90, 200, 52, 168);
+    g.stroke();
+    // folds (gyri)
+    g.lineWidth = 7;
+    [[70, 150, 95, 120, 120, 140, 145, 115],
+     [95, 95, 120, 80, 140, 95, 165, 78],
+     [150, 150, 175, 130, 195, 150, 220, 128],
+     [120, 175, 150, 165, 175, 180, 200, 168],
+     [180, 95, 205, 85, 220, 105, 238, 95]].forEach(function (f) {
+      g.beginPath();
+      g.moveTo(f[0], f[1]);
+      g.bezierCurveTo(f[2], f[3], f[4], f[5], f[6], f[7]);
+      g.stroke();
+    });
+    // gold synapse hubs
+    g.fillStyle = "#f0c55e";
+    [[100, 120], [160, 90], [190, 150], [130, 160], [225, 110], [196, 228]]
+      .forEach(function (n) {
+        g.beginPath();
+        g.arc(n[0], n[1], 8, 0, Math.PI * 2);
+        g.fill();
+      });
+  }
+
+  /* Prepare per-particle params so each pattern starts seamlessly
+     from wherever the particles currently are. */
+  function initPattern(w, h, now) {
+    var brainPts = null, brainSc = 1, brainOX = 0, brainOY = 0, brainStride = 1;
+    if (pattern === "brain") {
+      brainPts = samplePoints(paintBrain);
+      for (var s = brainPts.length - 1; s > 0; s--) {
+        var z = Math.floor(Math.random() * (s + 1));
+        var tmp = brainPts[s]; brainPts[s] = brainPts[z]; brainPts[z] = tmp;
+      }
+      var bsize = Math.min(w, h) * 0.66;
+      brainSc = bsize / 300;
+      brainOX = w / 2 - 150 * brainSc;
+      brainOY = h / 2 - 150 * brainSc;
+      brainStride = Math.max(1, Math.floor(brainPts.length / particles.length));
+    }
+    particles.forEach(function (p, i) {
+      p.fire = 0;
+      p.dim = 0;
+      p.trail = false;
+      if (pattern === "net") {
+        p.vx = (Math.random() - 0.5) * 0.6;
+        p.vy = (Math.random() - 0.5) * 0.6;
+      } else if (pattern === "galaxy") {
+        // Milky Way in four structural layers, seen as a tilted disk:
+        // bulge -> spiral arms -> faint inter-arm field -> outer halo
+        var maxR = Math.min(w, h) * 0.46;
+        var roll = Math.random();
+        if (roll < 0.24) {
+          p.tier = 0;                                    // 核球 bulge
+          p.grad = maxR * 0.2 * Math.pow(Math.random(), 0.5);
+          p.gang = Math.random() * Math.PI * 2;
+          p.gflat = 0.72;                                // rounder than the disk
+        } else if (roll < 0.66) {
+          p.tier = 1;                                    // 旋臂 spiral arms
+          var arm = Math.random() < 0.5 ? 0 : Math.PI;
+          var tt = Math.random();
+          p.grad = maxR * (0.2 + 0.8 * Math.pow(tt, 0.9)) +
+                   (Math.random() - 0.5) * maxR * 0.05;
+          p.gang = arm + tt * 3.4 + (Math.random() - 0.5) * 0.18;
+          p.gflat = 0.42;
+        } else if (roll < 0.87) {
+          p.tier = 2;                                    // 臂間 inter-arm field
+          p.grad = maxR * (0.25 + 0.75 * Math.random());
+          p.gang = Math.random() * Math.PI * 2;
+          p.gflat = 0.42;
+        } else {
+          p.tier = 3;                                    // 銀暈 outer halo
+          p.grad = maxR * (0.98 + Math.random() * 0.28);
+          p.gang = Math.random() * Math.PI * 2;
+          p.gflat = 0.8;                                 // near-spherical
+        }
+        var gex = Math.cos(p.gang) * p.grad;
+        var gey = Math.sin(p.gang) * p.grad * p.gflat;
+        p.gox = p.x - (w / 2 + gex * 0.94 + gey * 0.34);
+        p.goy = p.y - (h / 2 - gex * 0.34 + gey * 0.94);
+      } else if (pattern === "roads") {
+        // big-city grid: one-way streets, every 3rd is a fast highway
+        roadGX = Math.max(4, Math.round(w / 170));
+        roadGY = Math.max(3, Math.round(h / 150));
+        p.axisH = Math.random() < 0.55;
+        var si = Math.floor(Math.random() * (p.axisH ? roadGY : roadGX));
+        p.si = si;
+        p.dir = si % 2 === 0 ? 1 : -1;
+        p.speed = si % 3 === 0 ? 2.3 + Math.random() * 1.1 : 0.9 + Math.random() * 0.9;
+        if (p.axisH) {
+          p.laneY = (si + 0.5) * h / roadGY;
+          p.off = p.y - p.laneY;
+        } else {
+          p.laneX = (si + 0.5) * w / roadGX;
+          p.off = p.x - p.laneX;
+        }
+      } else if (pattern === "brain") {
+        var bp = brainPts[(i * brainStride) % brainPts.length];
+        p.bhx = brainOX + bp.x * brainSc;
+        p.bhy = brainOY + bp.y * brainSc;
+        p.fspd = 0.6 + Math.random() * 1.2;
+        p.fph = Math.random() * Math.PI * 2;
+      } else { // hole: Interstellar-style black hole
+        var Rc = Math.min(w, h) * 0.09;   // event-horizon radius (kept empty)
+        p.core = Rc;
+        p.halo = Math.random() < 0.18;    // lensed light ring around the core
+        p.hang = Math.random() * Math.PI * 2;
+        if (p.halo) {
+          p.hrad = Rc * (1.25 + Math.random() * 0.3);
+          p.hw = 0.016 + Math.random() * 0.01;
+        } else {
+          // accretion disk: dense toward the inner edge
+          p.hrad = Rc * (1.15 + 3.3 * Math.pow(Math.random(), 1.7));
+          p.hoff = (Math.random() - 0.5) * Rc * 0.18;  // disk thickness
+        }
+        // offset from current position decays -> seamless entry
+        var flat = p.halo ? 1 : 0.28;
+        p.hox = p.x - (w / 2 + Math.cos(p.hang) * p.hrad);
+        p.hoy = p.y - (h / 2 + Math.sin(p.hang) * p.hrad * flat + (p.hoff || 0));
+      }
+    });
+  }
+
+  /* One motion step of the current drift pattern for particle p. */
+  function patternStep(p, i, w, h, now) {
+    if (pattern === "net") {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+
+      if (mouse.x !== null) {
+        var dxm = p.x - mouse.x, dym = p.y - mouse.y;
+        var dm = Math.sqrt(dxm * dxm + dym * dym);
+        if (dm < 120 && dm > 0.01) {
+          p.x += (dxm / dm) * 0.6;
+          p.y += (dym / dm) * 0.6;
+        }
+      }
+    } else if (pattern === "galaxy") {
+      // differential rotation, tilted-disk projection, layered depth
+      p.gang += 0.55 / (p.grad + 40);
+      p.gox *= 0.96;
+      p.goy *= 0.96;
+      var gex = Math.cos(p.gang) * p.grad;
+      var gey = Math.sin(p.gang) * p.grad * p.gflat;
+      p.x = w / 2 + gex * 0.94 + gey * 0.34 + p.gox;
+      p.y = h / 2 - gex * 0.34 + gey * 0.94 + p.goy;
+      // near side of the disk reads brighter and larger than the far side
+      var dep = 0.5 + 0.5 * Math.sin(p.gang);
+      if (p.tier === 0) {          // bulge: dense glowing core
+        p.fire = 0.34 + 0.3 * dep;
+        p.dim = 0;
+      } else if (p.tier === 1) {   // spiral arms
+        p.fire = 0.1 + 0.32 * dep;
+        p.dim = 0.18 * (1 - dep);
+      } else if (p.tier === 2) {   // faint field between the arms
+        p.fire = 0;
+        p.dim = 0.45 - 0.2 * dep;
+      } else {                     // distant halo stars
+        p.fire = 0;
+        p.dim = 0.58 - 0.12 * dep;
+      }
+    } else if (pattern === "roads") {
+      // city-grid traffic: drive the street, sometimes turn at intersections
+      var sx = w / roadGX, sy = h / roadGY;
+      p.off *= 0.94;
+      var ca = 18 + (p.si % 3) * 10;   // per-street curve amplitude
+      if (p.axisH) {
+        p.x += p.speed * p.dir;
+        if (p.dir > 0 && p.x > w + 12) p.x = -12;
+        if (p.dir < 0 && p.x < -12) p.x = w + 12;
+        // winding street: the whole lane follows the same gentle curve
+        p.y += (p.laneY + Math.sin(p.x * 0.006 + p.si * 2.3) * ca +
+                p.off + Math.sin(now / 350 + i) * 1.2 - p.y) * 0.25;
+        var kx = Math.round(p.x / sx - 0.5);
+        var ix = (kx + 0.5) * sx;
+        if (kx >= 0 && kx < roadGX &&
+            Math.abs(p.x - ix) < p.speed && Math.random() < 0.16) {
+          p.axisH = false;
+          p.laneX = ix;
+          p.x = ix;
+          p.si = kx;
+          p.off = 0;
+          p.dir = kx % 2 === 0 ? 1 : -1;
+          p.speed = kx % 3 === 0 ? 2.3 + Math.random() * 1.1 : 0.9 + Math.random() * 0.9;
+        }
+      } else {
+        p.y += p.speed * p.dir;
+        if (p.dir > 0 && p.y > h + 12) p.y = -12;
+        if (p.dir < 0 && p.y < -12) p.y = h + 12;
+        p.x += (p.laneX + Math.sin(p.y * 0.006 + p.si * 1.9) * ca +
+                p.off + Math.sin(now / 350 + i) * 1.2 - p.x) * 0.25;
+        var ky = Math.round(p.y / sy - 0.5);
+        var iy = (ky + 0.5) * sy;
+        if (ky >= 0 && ky < roadGY &&
+            Math.abs(p.y - iy) < p.speed && Math.random() < 0.16) {
+          p.axisH = true;
+          p.laneY = iy;
+          p.y = iy;
+          p.si = ky;
+          p.off = 0;
+          p.dir = ky % 2 === 0 ? 1 : -1;
+          p.speed = ky % 3 === 0 ? 2.3 + Math.random() * 1.1 : 0.9 + Math.random() * 0.9;
+        }
+      }
+    } else if (pattern === "brain") {
+      // neural web: dots hover on the brain wiring, synapses firing
+      p.x += (p.bhx - p.x) * 0.08 + Math.sin(now / 480 + i * 1.3) * 0.35;
+      p.y += (p.bhy - p.y) * 0.08 + Math.cos(now / 520 + i * 0.7) * 0.35;
+      var f = Math.sin(now / 1000 * (p.fspd * 6) + p.fph);
+      p.fire = f > 0.86 ? (f - 0.86) / 0.14 : 0;
+    } else { // hole: accretion flow streaming into the horizon
+      var cx = w / 2, cy = h / 2;
+      p.lx = p.x;
+      p.ly = p.y;
+      p.hox *= 0.95;
+      p.hoy *= 0.95;
+      if (p.halo) {
+        p.hang += p.hw;
+        p.x = cx + Math.cos(p.hang) * p.hrad + p.hox;
+        p.y = cy + Math.sin(p.hang) * p.hrad + p.hoy;
+        p.fire = 0.45;   // lensed light ring glows
+      } else {
+        p.trail = true;
+        p.hang += 13 / Math.pow(p.hrad, 1.45);   // Keplerian whip
+        // gravity: the plunge accelerates sharply near the horizon
+        p.hrad -= 0.2 + 70 / Math.max(p.hrad - p.core * 0.7, 12);
+        var reborn = false;
+        if (p.hrad < p.core * 1.02) {
+          // swallowed -> new matter falls in from far outside
+          p.hrad = Math.min(w, h) * (0.28 + Math.random() * 0.3);
+          p.hang = Math.random() * Math.PI * 2;
+          p.hox = 0;
+          p.hoy = 0;
+          reborn = true;
+        }
+        p.x = cx + Math.cos(p.hang) * p.hrad + p.hox;
+        p.y = cy + Math.sin(p.hang) * p.hrad * 0.28 + p.hoff + p.hoy;
+        if (reborn) { p.lx = p.x; p.ly = p.y; }   // no streak across the jump
+        // hotter closer in; fades away as it crosses the photon ring
+        p.fire = Math.max(0, (p.core * 3.5 - p.hrad) / (p.core * 3.5)) * 0.9;
+        p.dim = p.hrad < p.core * 1.7
+          ? Math.min(1, (p.core * 1.7 - p.hrad) / (p.core * 0.68))
+          : 0;
+      }
+    }
+  }
+  var logoPlace = null;   // {ox, oy, scale} of the logo inside the hero
+  var logoAlpha = 0;      // crisp underlay fade
+
+  /* ---- Draw the logo in a 300x300 coordinate space.
+         Mirrors the header SVG: ring, dashed map routes flowing out of
+         the R (drawn under the glyph so they merge with it), gold nodes. ---- */
+  function paintLogo(g) {
+    // ring
+    g.strokeStyle = "#6fa3e8";
+    g.lineCap = "round";
+    g.lineWidth = 18;
+    g.beginPath();
+    g.arc(150, 150, 126, 0, Math.PI * 2);
+    g.stroke();
+
+    // map routes (dashed, R -> nodes); the R is painted on top of their starts
+    g.lineWidth = 8;
+    g.setLineDash([10, 11]);
+    [
+      [174, 99, 192, 78, 192, 60, 213, 42],
+      [186, 165, 216, 165, 240, 171, 273, 162],
+      [120, 156, 90, 150, 66, 156, 36, 150],
+      [126, 192, 120, 228, 120, 240, 108, 267]
+    ].forEach(function (r) {
+      g.beginPath();
+      g.moveTo(r[0], r[1]);
+      g.bezierCurveTo(r[2], r[3], r[4], r[5], r[6], r[7]);
+      g.stroke();
+    });
+    g.setLineDash([]);
+
+    // the letter R (covers the route starts -> seamless joins)
+    g.fillStyle = "#6fa3e8";
+    g.font = "900 144px Georgia, 'Times New Roman', serif";
+    g.textAlign = "center";
+    g.textBaseline = "alphabetic";
+    g.fillText("R", 150, 198);
+
+    // gold nodes on the ring
+    g.fillStyle = "#f0c55e";
+    [[213, 42, 24], [273, 162, 24], [36, 150, 18], [108, 267, 24]].forEach(function (n) {
+      g.beginPath();
+      g.arc(n[0], n[1], n[2], 0, Math.PI * 2);
+      g.fill();
+    });
+  }
+
+  /* ---- Render the logo to an offscreen canvas and sample points ---- */
+  function buildTargets(w, h) {
+    var S = 300;
+    var off = document.createElement("canvas");
+    off.width = S; off.height = S;
+    var o = off.getContext("2d");
+    paintLogo(o);
+
+    // sample opaque pixels
+    var img = o.getImageData(0, 0, S, S).data;
+    var pts = [];
+    var step = 3;
+    for (var y = 0; y < S; y += step) {
+      for (var x = 0; x < S; x += step) {
+        var idx = (y * S + x) * 4;
+        if (img[idx + 3] > 150) {
+          pts.push({ x: x, y: y, gold: img[idx] > img[idx + 2] + 20 });
+        }
+      }
+    }
+
+    // scale into the hero (right-of-centre on wide screens, centred on small)
+    var size = Math.min(w, h) * 0.66;
+    var scale = size / S;
+    var ox = (w > 900 ? w * 0.66 : w / 2) - (S / 2) * scale;
+    var oy = h / 2 - (S / 2) * scale;
+    logoPlace = { ox: ox, oy: oy, scale: scale };
+
+    // pick exactly particles.length points, spread evenly through the sample
+    var n = particles.length;
+    targets = [];
+    if (!pts.length || !n) return;
+    var stride = pts.length / n;
+    for (var i = 0; i < n; i++) {
+      var p = pts[Math.floor(i * stride) % pts.length];
+      targets.push({ x: ox + p.x * scale, y: oy + p.y * scale, gold: p.gold });
+    }
+    // shuffle so neighbouring particles fly to scattered targets
+    for (var j = targets.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var tmp = targets[j]; targets[j] = targets[k]; targets[k] = tmp;
+    }
+  }
+
+  function sizeCanvas() {
+    var hero = canvas.parentElement;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = hero.clientWidth * dpr;
+    canvas.height = hero.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed(hero.clientWidth, hero.clientHeight);
+    buildTargets(hero.clientWidth, hero.clientHeight);
+    initPattern(hero.clientWidth, hero.clientHeight, performance.now());
+  }
+
+  function seed(w, h) {
+    var count = Math.min(Math.floor((w * h) / 3200), 340);
+    particles = [];
+    for (var i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        r: 1 + Math.random() * 1.6,
+        gold: Math.random() < 0.35,
+        // personal micro-orbit while the logo is held
+        oamp: 1.4 + Math.random() * 1.6,
+        ospd: 1.2 + Math.random() * 1.8,
+        oph: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function dotColor(gold, alpha) {
+    var c = gold ? GOLD : BLUE;
+    return "rgba(" + c.r + "," + c.g + "," + c.b + "," + alpha + ")";
+  }
+
+  function frame(now) {
+    var w = canvas.parentElement.clientWidth;
+    var h = canvas.parentElement.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+
+    /* ---- state transitions ---- */
+    if (mode === "drift" && now - phaseStart > driftDur && targets.length) {
+      mode = "form";
+      phaseStart = now;
+      particles.forEach(function (pp) {
+        pp.delay = Math.random() * 0.45;         // staggered departure
+        pp.curve = 0.7 + Math.random() * 0.6;    // vortex strength (same direction)
+      });
+    } else if (mode === "form") {
+      formProgress = Math.min((now - phaseStart) / FORM, 1);
+      if (formProgress >= 1) { mode = "hold"; phaseStart = now; }
+    } else if (mode === "hold" && now - phaseStart > HOLD) {
+      mode = "drift";
+      phaseStart = now;
+      driftDur = DRIFT;
+      patternIdx = (patternIdx + 1) % patterns.length;
+      pattern = patterns[patternIdx];
+      initPattern(w, h, now);
+    }
+
+    var logoMix = mode === "form" ? formProgress : mode === "hold" ? 1 : 0;
+    // lines persist into the logo, tightening into short constellation links
+    var linkAlphaMult = patternLinkMult[pattern] +
+                        (0.62 - patternLinkMult[pattern]) * logoMix;
+    var linkDist = LINK_DIST - (LINK_DIST - 85) * logoMix;
+
+    /* ---- move ---- */
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      var t = targets[i];
+
+      if (mode === "drift" || !t) {
+        patternStep(p, i, w, h, now);
+      } else if (mode === "form") {
+        // staggered departure: keep dancing until this particle's turn
+        var q = (formProgress - p.delay) / (1 - p.delay);
+        if (q <= 0) {
+          patternStep(p, i, w, h, now);
+        } else {
+          if (q > 1) q = 1;
+          // vortex: the whole field swirls around the logo centre while
+          // being drawn in, like water spiralling down into the mark
+          var dx2 = t.x - p.x, dy2 = t.y - p.y;
+          var pull = 0.045 + 0.14 * q * q;
+          var lcx = logoPlace.ox + 150 * logoPlace.scale;
+          var lcy = logoPlace.oy + 150 * logoPlace.scale;
+          var sw = 0.022 * p.curve * (1 - q);
+          p.x += dx2 * pull - (p.y - lcy) * sw;
+          p.y += dy2 * pull + (p.x - lcx) * sw;
+        }
+      } else { // hold: alive — each dot floats on its own tiny orbit
+        var ramp = Math.min((now - phaseStart) / 800, 1);
+        p.x = t.x + Math.cos(now / 1000 * p.ospd + p.oph) * p.oamp * ramp;
+        p.y = t.y + Math.sin(now / 1000 * p.ospd * 1.35 + p.oph * 1.7) * p.oamp * ramp;
+      }
+
+      // pattern-specific brightness fades back to neutral as the logo forms
+      if (mode !== "drift") {
+        p.fire *= 0.92;
+        p.dim *= 0.88;
+      }
+    }
+
+    /* ---- crisp logo underlay: fades in as particles settle ---- */
+    var logoAlphaTarget =
+      (mode === "hold" || (mode === "form" && formProgress > 0.55)) ? 0.55 : 0;
+    logoAlpha += (logoAlphaTarget - logoAlpha) * 0.055;
+    if (logoAlpha > 0.01 && logoPlace) {
+      var lcx = logoPlace.ox + 150 * logoPlace.scale;
+      var lcy = logoPlace.oy + 150 * logoPlace.scale;
+      var glowR = 170 * logoPlace.scale;
+
+      // soft gold halo behind the emerging logo
+      var halo = ctx.createRadialGradient(lcx, lcy, glowR * 0.2, lcx, lcy, glowR * 1.6);
+      halo.addColorStop(0, "rgba(240,197,94," + (0.16 * logoAlpha).toFixed(3) + ")");
+      halo.addColorStop(1, "rgba(240,197,94,0)");
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(lcx, lcy, glowR * 1.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.globalAlpha = logoAlpha * (mode === "hold" ? 0.92 + 0.08 * Math.sin(now / 850) : 1);
+      ctx.translate(logoPlace.ox, logoPlace.oy);
+      ctx.scale(logoPlace.scale, logoPlace.scale);
+      paintLogo(ctx);
+      ctx.restore();
+    }
+
+    /* ---- black hole: dark event horizon + gold photon ring ---- */
+    var holeTarget = (pattern === "hole" && mode === "drift") ? 1 : 0;
+    holeVis += (holeTarget - holeVis) * 0.05;
+    if (holeVis > 0.01) {
+      var hcx = w / 2, hcy = h / 2, Rc = Math.min(w, h) * 0.09;
+      ctx.save();
+      ctx.globalAlpha = holeVis;
+      // photon ring glow
+      var ring = ctx.createRadialGradient(hcx, hcy, Rc * 0.85, hcx, hcy, Rc * 1.8);
+      ring.addColorStop(0, "rgba(240,197,94,0)");
+      ring.addColorStop(0.18, "rgba(240,197,94,0.5)");
+      ring.addColorStop(0.45, "rgba(240,197,94,0.12)");
+      ring.addColorStop(1, "rgba(240,197,94,0)");
+      ctx.fillStyle = ring;
+      ctx.beginPath();
+      ctx.arc(hcx, hcy, Rc * 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      // event horizon: pure black core
+      ctx.fillStyle = "#020409";
+      ctx.beginPath();
+      ctx.arc(hcx, hcy, Rc, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    /* ---- links (map network look; tightens into the logo) ---- */
+    if (linkAlphaMult > 0.02) {
+      for (i = 0; i < particles.length; i++) {
+        var a = particles[i];
+        for (var j = i + 1; j < particles.length; j++) {
+          var b = particles[j];
+          var dx = a.x - b.x, dy = a.y - b.y;
+          var d2 = dx * dx + dy * dy;
+          if (d2 < linkDist * linkDist) {
+            var alpha = 0.16 * (1 - Math.sqrt(d2) / linkDist) * linkAlphaMult;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = (a.gold && b.gold)
+              ? "rgba(240,197,94," + alpha.toFixed(3) + ")"
+              : "rgba(111,163,232," + alpha.toFixed(3) + ")";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    /* ---- dots ---- */
+    for (i = 0; i < particles.length; i++) {
+      p = particles[i];
+      t = targets[i];
+      var gold = logoMix > 0.5 && t ? t.gold : p.gold;
+      var radius = p.r * (1 + 0.6 * logoMix);
+      if (logoMix > 0 && t && t.gold) radius = p.r * (1 + 1.2 * logoMix);
+      var fire = p.fire || 0;   // hot / firing particles glow brighter & larger
+      radius *= 1 + 0.9 * fire;
+      var alpha = Math.min(0.42 + 0.5 * logoMix + 0.45 * fire, 0.95) *
+                  (1 - (p.dim || 0));
+      if (alpha < 0.02) continue;   // swallowed by the black hole
+      if (p.trail && mode === "drift") {
+        // velocity-stretched streak: fast infall draws a flowing tail
+        var tvx = p.x - p.lx, tvy = p.y - p.ly;
+        ctx.beginPath();
+        ctx.moveTo(p.x - tvx * 3, p.y - tvy * 3);
+        ctx.lineTo(p.x, p.y);
+        ctx.strokeStyle = dotColor(gold, alpha * 0.55);
+        ctx.lineWidth = radius * 1.2;
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = dotColor(gold, alpha);
+      ctx.fill();
+    }
+
+    if (running) rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (!running) { running = true; rafId = requestAnimationFrame(frame); }
+  }
+
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+  }
+
+  sizeCanvas();
+
+  if (reduceMotion) {
+    // static: show the formed logo
+    if (targets.length) {
+      particles.forEach(function (p, i) {
+        var t = targets[i];
+        if (t) { p.x = t.x; p.y = t.y; }
+      });
+      mode = "hold";
+      formProgress = 1;
+      logoAlpha = 0.55;
+    }
+    frame(performance.now());
+    running = false;
+  } else {
+    start();
+
+    document.addEventListener("visibilitychange", function () {
+      (document.hidden || animPaused) ? stop() : start();
+    });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        entries[0].isIntersecting && !document.hidden && !animPaused
+          ? start() : stop();
+      }).observe(canvas.parentElement);
+    }
+
+    canvas.parentElement.addEventListener("mousemove", function (e) {
+      var r = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+    });
+    canvas.parentElement.addEventListener("mouseleave", function () {
+      mouse.x = null;
+      mouse.y = null;
+    });
+  }
+
+  /* WCAG 2.2.2: pause / resume all decorative motion */
+  var pauseBtn = document.getElementById("pauseAnim");
+  pauseBtn.addEventListener("click", function () {
+    animPaused = !animPaused;
+    document.body.classList.toggle("anim-paused", animPaused);
+    pauseBtn.setAttribute("aria-pressed", String(animPaused));
+    pauseBtn.setAttribute("aria-label", animPaused ? "Play motion" : "Pause motion");
+    document.getElementById("pauseIcon").textContent = animPaused ? "▶" : "⏸";
+    document.getElementById("pauseLabel").textContent =
+      animPaused ? "Play motion" : "Pause motion";
+    if (animPaused) {
+      stop();
+    } else if (!reduceMotion) {
+      phaseStart = performance.now();
+      start();
+    }
+  });
+
+  var resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      sizeCanvas();
+      mode = "drift";
+      phaseStart = performance.now();
+      driftDur = FIRST_DRIFT;
+      if (reduceMotion) frame(performance.now());
+    }, 150);
+  });
+})();
+</script>
+
+</body>
+</html>
