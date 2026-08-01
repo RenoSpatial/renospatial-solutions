@@ -668,7 +668,7 @@
     width: 100%;
     height: 100%;
     z-index: 0;
-    opacity: 0.55;
+    opacity: 0.7;
     pointer-events: none;
   }
 
@@ -1263,7 +1263,8 @@
   var GOLD = { r: 240, g: 197, b: 94 };
   var BLUE = { r: 111, g: 163, b: 232 };
   var LINK_DIST = 130;
-  var patternLinkMult = { net: 1, galaxy: 0.5, roads: 0.5, hole: 0.4, brain: 0.7 };
+  // roads: 0 — the drawn street grid supplies the structure instead
+  var patternLinkMult = { net: 1, galaxy: 0.5, roads: 0, hole: 0.4, brain: 0.7 };
   var fields = [];
 
   function createField(canvas, cfg) {
@@ -1287,6 +1288,7 @@
     var pattern = patterns[0];
     var density = cfg.density || 3200;
     var maxDots = cfg.maxDots || 340;
+    var goldRatio = cfg.goldRatio || 0.35;
     var holeVis = 0;   // fade of the black-hole core / photon ring
     var roadGX = 7, roadGY = 5;  // city grid: vertical / horizontal street counts
 
@@ -1540,6 +1542,10 @@
           p.speed = ky % 3 === 0 ? 2.3 + Math.random() * 1.1 : 0.9 + Math.random() * 0.9;
         }
       }
+      // gold dots are the vehicles: larger and brighter than the streets.
+      // No motion streak here — a car that wraps the edge or turns at an
+      // intersection jumps position, which would draw a full-width flash.
+      p.fire = p.gold ? 0.95 : 0.08;
     } else if (pattern === "brain") {
       // neural web: dots hover on the brain wiring, synapses firing
       p.x += (p.bhx - p.x) * 0.08 + Math.sin(now / 480 + i * 1.3) * 0.35;
@@ -1695,7 +1701,7 @@
         vx: (Math.random() - 0.5) * 0.45,
         vy: (Math.random() - 0.5) * 0.45,
         r: 1 + Math.random() * 1.6,
-        gold: Math.random() < 0.35,
+        gold: Math.random() < goldRatio,
         // personal micro-orbit while the logo is held
         oamp: 1.4 + Math.random() * 1.6,
         ospd: 1.2 + Math.random() * 1.8,
@@ -1709,10 +1715,48 @@
     return "rgba(" + c.r + "," + c.g + "," + c.b + "," + alpha + ")";
   }
 
+  /* Draw the street grid itself, tracing the same curves the vehicles
+     drive along, so the field reads as an actual map. Every third
+     street is a highway: thicker and gold. */
+  function drawRoads(w, h) {
+    var si, x, y, lane, amp, hiway;
+
+    for (si = 0; si < roadGY; si++) {            // east-west streets
+      lane = (si + 0.5) * h / roadGY;
+      amp = 18 + (si % 3) * 10;
+      hiway = si % 3 === 0;
+      ctx.beginPath();
+      for (x = 0; x <= w + 8; x += 8) {
+        y = lane + Math.sin(x * 0.006 + si * 2.3) * amp;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = hiway ? "rgba(240,197,94,0.20)" : "rgba(111,163,232,0.15)";
+      ctx.lineWidth = hiway ? 3.2 : 1.4;
+      ctx.stroke();
+    }
+
+    for (si = 0; si < roadGX; si++) {            // north-south streets
+      lane = (si + 0.5) * w / roadGX;
+      amp = 18 + (si % 3) * 10;
+      hiway = si % 3 === 0;
+      ctx.beginPath();
+      for (y = 0; y <= h + 8; y += 8) {
+        x = lane + Math.sin(y * 0.006 + si * 1.9) * amp;
+        if (y === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = hiway ? "rgba(240,197,94,0.20)" : "rgba(111,163,232,0.15)";
+      ctx.lineWidth = hiway ? 3.2 : 1.4;
+      ctx.stroke();
+    }
+  }
+
   function frame(now) {
     var w = host.clientWidth;
     var h = host.clientHeight;
     ctx.clearRect(0, 0, w, h);
+
+    /* ---- street network, drawn under the traffic ---- */
+    if (pattern === "roads" && mode === "drift") drawRoads(w, h);
 
     /* ---- state transitions (logo morph runs on the hero only) ---- */
     if (cfg.morph) {
@@ -1827,6 +1871,15 @@
       ctx.beginPath();
       ctx.arc(hcx, hcy, Rc, 0, Math.PI * 2);
       ctx.fill();
+
+      // the logo at the singularity, breathing brighter and dimmer
+      var pulse = 0.5 + 0.5 * Math.sin(now / 1300);      // ~8s cycle
+      var lbox = Rc * 1.8;
+      ctx.globalAlpha = holeVis * (0.14 + 0.56 * pulse);
+      ctx.translate(hcx - lbox / 2, hcy - lbox / 2);
+      ctx.scale(lbox / 300, lbox / 300);
+      paintLogo(ctx);
+
       ctx.restore();
     }
 
@@ -1967,7 +2020,8 @@
   var fxAbout = document.getElementById("fxAbout");
   if (fxAbout) {
     createField(fxAbout, {
-      patterns: ["roads"], morph: false, density: 6000, maxDots: 130
+      patterns: ["roads"], morph: false,
+      density: 4800, maxDots: 180, goldRatio: 0.55
     });
   }
 
