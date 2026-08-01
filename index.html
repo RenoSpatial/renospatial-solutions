@@ -76,38 +76,227 @@
   /* WCAG 2.2.2 — user can pause all decorative motion */
   .anim-paused * { animation-play-state: paused !important; }
 
-  #pauseAnim {
+  /* ============================================================
+     Accessibility toolbar — user-controlled display preferences
+     ============================================================ */
+
+  /* --- Bigger text (scales every rem-based size) --- */
+  html.a11y-text-1 { font-size: 112.5%; }
+  html.a11y-text-2 { font-size: 125%; }
+  html.a11y-text-3 { font-size: 140%; }
+
+  /* --- Text spacing --- */
+  html.a11y-spacing-1 body { letter-spacing: 0.05em; word-spacing: 0.12em; }
+  html.a11y-spacing-2 body { letter-spacing: 0.1em; word-spacing: 0.24em; }
+
+  /* --- Line height --- */
+  html.a11y-lh-1 p, html.a11y-lh-1 li, html.a11y-lh-1 body { line-height: 1.9 !important; }
+  html.a11y-lh-2 p, html.a11y-lh-2 li, html.a11y-lh-2 body { line-height: 2.3 !important; }
+
+  /* --- Highlight links --- */
+  html.a11y-links-1 a:not(.skip-link) {
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+    outline: 2px solid #f0c55e;
+    outline-offset: 2px;
+    background: rgba(240, 197, 94, 0.14);
+  }
+
+  /* --- High contrast --- */
+  html.a11y-contrast-1 body,
+  html.a11y-contrast-1 .hero,
+  html.a11y-contrast-1 #services,
+  html.a11y-contrast-1 #contact,
+  html.a11y-contrast-1 .marquee,
+  html.a11y-contrast-1 footer { background: #000 !important; color: #fff !important; }
+  html.a11y-contrast-1 .card,
+  html.a11y-contrast-1 .contact-panel,
+  html.a11y-contrast-1 .chip,
+  html.a11y-contrast-1 header.scrolled {
+    background: #000 !important;
+    border-color: #fff !important;
+  }
+  html.a11y-contrast-1 p,
+  html.a11y-contrast-1 h1, html.a11y-contrast-1 h2, html.a11y-contrast-1 h3,
+  html.a11y-contrast-1 .section-lede,
+  html.a11y-contrast-1 .card p,
+  html.a11y-contrast-1 .contact-panel,
+  html.a11y-contrast-1 footer { color: #fff !important; }
+  html.a11y-contrast-1 .grad {
+    background: none !important;
+    -webkit-text-fill-color: #ffe680 !important;
+    color: #ffe680 !important;
+  }
+  html.a11y-contrast-1 a,
+  html.a11y-contrast-1 .kicker,
+  html.a11y-contrast-1 nav a { color: #ffe680 !important; }
+  html.a11y-contrast-1 .btn-primary { background: #ffe680 !important; color: #000 !important; }
+  html.a11y-contrast-1 .btn-ghost { border-color: #fff !important; color: #fff !important; }
+
+  /* --- Hide decorative graphics --- */
+  html.a11y-noimg-1 #net,
+  html.a11y-noimg-1 .map-lines,
+  html.a11y-noimg-1 .card .icon,
+  html.a11y-noimg-1 .marquee { display: none !important; }
+  html.a11y-noimg-1 .hero { background: var(--bg) !important; }
+
+  /* --- Dyslexia-friendly typeface --- */
+  html.a11y-dyslexia-1 body {
+    font-family: "Comic Sans MS", "Trebuchet MS", Verdana, Tahoma, sans-serif !important;
+    letter-spacing: 0.03em;
+  }
+
+  /* --- Large cursor --- */
+  html.a11y-cursor-1, html.a11y-cursor-1 * {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><path d='M8 4 L8 38 L17 30 L23 43 L30 40 L24 27 L36 27 Z' fill='white' stroke='black' stroke-width='2.5' stroke-linejoin='round'/></svg>") 6 3, auto !important;
+  }
+
+  /* --- Left-align text --- */
+  html.a11y-align-1 body,
+  html.a11y-align-1 #contact,
+  html.a11y-align-1 #contact .wrap,
+  html.a11y-align-1 footer { text-align: left !important; }
+  html.a11y-align-1 #contact p { margin-left: 0 !important; }
+
+  /* --- Saturation + dim. Applied per-region and only while active: a
+         filter on <html> (or a permanent one here) would make fixed
+         elements position against the filtered box instead of the
+         viewport. Combined through variables so both can run at once. --- */
+  :root { --a11y-sat: 1; --a11y-bright: 1; }
+  html.a11y-sat-1 { --a11y-sat: 0.45; }
+  html.a11y-sat-2 { --a11y-sat: 0; }
+  html.a11y-dim-1 { --a11y-bright: 0.72; }
+
+  html.a11y-filter header,
+  html.a11y-filter main,
+  html.a11y-filter footer,
+  html.a11y-filter #toTop {
+    filter: saturate(var(--a11y-sat)) brightness(var(--a11y-bright));
+  }
+
+  /* ---------- Toolbar button + panel ---------- */
+  #a11yBtn {
     position: fixed;
     left: 1.4rem;
     bottom: 1.4rem;
-    z-index: 60;
-    height: 46px;
-    padding: 0 1.1rem;
-    border-radius: 999px;
-    border: 1px solid rgba(240, 197, 94, 0.35);
+    z-index: 120;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(240, 197, 94, 0.45);
     background: var(--panel);
+    color: var(--gold);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+  #a11yBtn:hover { background: var(--bg-soft); }
+
+  #a11yPanel {
+    position: fixed;
+    left: 1.4rem;
+    bottom: 5.4rem;
+    z-index: 121;
+    width: 330px;
+    max-width: calc(100vw - 2.8rem);
+    max-height: min(70vh, 560px);
+    overflow-y: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    padding: 1rem;
+  }
+  #a11yPanel[hidden] { display: none; }
+
+  .a11y-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+  }
+  .a11y-head h2 { font-size: 1.05rem; margin: 0; }
+
+  #a11yClose {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: transparent;
     color: var(--ink);
-    font-size: 0.85rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  #a11yClose:hover { background: var(--bg-soft); }
+
+  .a11y-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .a11y-opt {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 84px;
+    padding: 0.6rem 0.4rem;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+    color: var(--ink);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.25;
+    cursor: pointer;
+  }
+  .a11y-opt:hover { border-color: rgba(240, 197, 94, 0.5); }
+  .a11y-opt .ico { font-size: 1.25rem; line-height: 1; }
+  .a11y-opt[aria-pressed="true"] {
+    background: rgba(240, 197, 94, 0.16);
+    border-color: var(--gold);
+    color: #fff;
+  }
+  .a11y-opt .lvl {
+    position: absolute;
+    top: 5px; right: 6px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  #a11yReset {
+    width: 100%;
+    margin-top: 0.7rem;
+    padding: 0.6rem;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
   }
-  #pauseAnim:hover { background: var(--bg-soft); }
-  #pauseLabel { margin-left: 0.4rem; }
+  #a11yReset:hover { background: var(--bg-soft); color: var(--ink); }
 
-  /* On phones the floating controls shrink to icons so they stop
-     covering body text */
+  .a11y-hint {
+    margin-top: 0.55rem;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
   @media (max-width: 640px) {
-    #pauseAnim {
-      width: 42px;
-      height: 42px;
-      padding: 0;
-      left: 1rem;
-      bottom: 1rem;
-      font-size: 0.95rem;
-      background: rgba(18, 34, 56, 0.85);
-      backdrop-filter: blur(4px);
-    }
-    #pauseLabel { display: none; }
+    #a11yBtn { left: 1rem; bottom: 1rem; width: 44px; height: 44px; }
+    #a11yPanel { left: 0.75rem; right: 0.75rem; bottom: 4.6rem; width: auto; max-width: none; }
+  }
+
+  /* On phones the floating controls sit closer to the corner */
+  @media (max-width: 640px) {
     #toTop {
       right: 1rem;
       bottom: 1rem;
@@ -911,7 +1100,51 @@
   Copyright © <span id="year">2025</span> Renospatial Solutions — All Rights Reserved.
 </footer>
 
-<button id="pauseAnim" aria-pressed="false" aria-label="Pause motion"><span id="pauseIcon">⏸</span><span id="pauseLabel">Pause motion</span></button>
+<button id="a11yBtn" aria-label="Accessibility menu" aria-expanded="false" aria-controls="a11yPanel">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="4" r="2" fill="currentColor"/>
+    <path d="M4 8 H20 M12 8 V14 M12 14 L8.5 21 M12 14 L15.5 21"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+<div id="a11yPanel" role="dialog" aria-labelledby="a11yTitle" hidden>
+  <div class="a11y-head">
+    <h2 id="a11yTitle">Accessibility</h2>
+    <button id="a11yClose" aria-label="Close accessibility menu">✕</button>
+  </div>
+
+  <div class="a11y-grid">
+    <button class="a11y-opt" data-feat="pause" aria-pressed="false">
+      <span class="ico" aria-hidden="true">⏸</span>Pause Animations</button>
+    <button class="a11y-opt" data-feat="contrast" aria-pressed="false">
+      <span class="ico" aria-hidden="true">◐</span>Contrast +</button>
+    <button class="a11y-opt" data-feat="links" aria-pressed="false">
+      <span class="ico" aria-hidden="true">🔗</span>Highlight Links</button>
+    <button class="a11y-opt" data-feat="text" aria-pressed="false">
+      <span class="ico" aria-hidden="true">T</span>Bigger Text</button>
+    <button class="a11y-opt" data-feat="spacing" aria-pressed="false">
+      <span class="ico" aria-hidden="true">↔</span>Text Spacing</button>
+    <button class="a11y-opt" data-feat="lh" aria-pressed="false">
+      <span class="ico" aria-hidden="true">≡</span>Line Height</button>
+    <button class="a11y-opt" data-feat="dyslexia" aria-pressed="false">
+      <span class="ico" aria-hidden="true">Df</span>Dyslexia Friendly</button>
+    <button class="a11y-opt" data-feat="noimg" aria-pressed="false">
+      <span class="ico" aria-hidden="true">▨</span>Hide Graphics</button>
+    <button class="a11y-opt" data-feat="cursor" aria-pressed="false">
+      <span class="ico" aria-hidden="true">↖</span>Big Cursor</button>
+    <button class="a11y-opt" data-feat="align" aria-pressed="false">
+      <span class="ico" aria-hidden="true">≣</span>Align Left</button>
+    <button class="a11y-opt" data-feat="sat" aria-pressed="false">
+      <span class="ico" aria-hidden="true">◑</span>Saturation</button>
+    <button class="a11y-opt" data-feat="dim" aria-pressed="false">
+      <span class="ico" aria-hidden="true">☾</span>Dim Background</button>
+  </div>
+
+  <button id="a11yReset">Reset all settings</button>
+  <p class="a11y-hint">Press Ctrl + U to open · Esc to close</p>
+</div>
+
 <button id="toTop" aria-label="Back to top">↑</button>
 
 <script>
@@ -1674,23 +1907,131 @@
     });
   }
 
-  /* WCAG 2.2.2: pause / resume all decorative motion */
-  var pauseBtn = document.getElementById("pauseAnim");
-  pauseBtn.addEventListener("click", function () {
-    animPaused = !animPaused;
-    document.body.classList.toggle("anim-paused", animPaused);
-    pauseBtn.setAttribute("aria-pressed", String(animPaused));
-    pauseBtn.setAttribute("aria-label", animPaused ? "Play motion" : "Pause motion");
-    document.getElementById("pauseIcon").textContent = animPaused ? "▶" : "⏸";
-    document.getElementById("pauseLabel").textContent =
-      animPaused ? "Play motion" : "Pause motion";
-    if (animPaused) {
+  /* =====================================================================
+     Accessibility toolbar — display preferences, saved per visitor.
+     "Pause Animations" here is the WCAG 2.2.2 motion control.
+     ===================================================================== */
+  var A11Y_KEY = "renospatial-a11y";
+  var root = document.documentElement;
+
+  // levels: how many steps each option cycles through before turning off
+  var FEATS = {
+    pause:    { levels: 1 },
+    contrast: { levels: 1 },
+    links:    { levels: 1 },
+    text:     { levels: 3 },
+    spacing:  { levels: 2 },
+    lh:       { levels: 2 },
+    dyslexia: { levels: 1 },
+    noimg:    { levels: 1 },
+    cursor:   { levels: 1 },
+    align:    { levels: 1 },
+    sat:      { levels: 2 },
+    dim:      { levels: 1 }
+  };
+
+  var a11yState = {};
+  try {
+    a11yState = JSON.parse(localStorage.getItem(A11Y_KEY)) || {};
+  } catch (e) {
+    a11yState = {};
+  }
+
+  function setMotionPaused(paused) {
+    animPaused = paused;
+    document.body.classList.toggle("anim-paused", paused);
+    if (paused) {
       stop();
     } else if (!reduceMotion) {
       phaseStart = performance.now();
       start();
     }
+  }
+
+  function applyA11y() {
+    Object.keys(FEATS).forEach(function (feat) {
+      var lvl = a11yState[feat] || 0;
+      for (var i = 1; i <= FEATS[feat].levels; i++) {
+        root.classList.toggle("a11y-" + feat + "-" + i, lvl === i);
+      }
+      var btn = document.querySelector('.a11y-opt[data-feat="' + feat + '"]');
+      if (btn) {
+        btn.setAttribute("aria-pressed", String(lvl > 0));
+        var badge = btn.querySelector(".lvl");
+        if (FEATS[feat].levels > 1 && lvl > 0) {
+          if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "lvl";
+            btn.appendChild(badge);
+          }
+          badge.textContent = lvl + "/" + FEATS[feat].levels;
+        } else if (badge) {
+          badge.remove();
+        }
+      }
+    });
+
+    // one combined filter pass, only while a filter option is on
+    root.classList.toggle("a11y-filter", !!(a11yState.sat || a11yState.dim));
+    setMotionPaused(!!a11yState.pause);
+
+    try {
+      localStorage.setItem(A11Y_KEY, JSON.stringify(a11yState));
+    } catch (e) { /* private mode — settings just won't persist */ }
+  }
+
+  document.querySelectorAll(".a11y-opt").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var feat = btn.dataset.feat;
+      var max = FEATS[feat].levels;
+      a11yState[feat] = ((a11yState[feat] || 0) + 1) % (max + 1);
+      applyA11y();
+    });
   });
+
+  var a11yBtn = document.getElementById("a11yBtn");
+  var a11yPanel = document.getElementById("a11yPanel");
+
+  function openA11y(open) {
+    a11yPanel.hidden = !open;
+    a11yBtn.setAttribute("aria-expanded", String(open));
+    if (open) {
+      a11yPanel.querySelector(".a11y-opt").focus();
+    } else {
+      a11yBtn.focus();
+    }
+  }
+
+  a11yBtn.addEventListener("click", function () { openA11y(a11yPanel.hidden); });
+  document.getElementById("a11yClose").addEventListener("click", function () {
+    openA11y(false);
+  });
+
+  document.getElementById("a11yReset").addEventListener("click", function () {
+    a11yState = {};
+    applyA11y();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey && (e.key === "u" || e.key === "U")) {
+      e.preventDefault();
+      openA11y(a11yPanel.hidden);
+    } else if (e.key === "Escape" && !a11yPanel.hidden) {
+      openA11y(false);
+    }
+  });
+
+  // close when clicking outside the panel
+  document.addEventListener("click", function (e) {
+    if (!a11yPanel.hidden &&
+        !a11yPanel.contains(e.target) &&
+        !a11yBtn.contains(e.target)) {
+      a11yPanel.hidden = true;
+      a11yBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  applyA11y();   // restore saved preferences on load
 
   var resizeTimer;
   window.addEventListener("resize", function () {

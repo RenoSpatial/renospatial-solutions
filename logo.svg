@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 112 112" width="1024" height="1024" fill="none">
+  <title>Renospatial Solutions</title>
+  <defs>
+    <linearGradient id="lgrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6fa3e8"/>
+      <stop offset="1" stop-color="#2b5c94"/>
+    </linearGradient>
+  </defs>
+
+  <!-- outer ring -->
+  <circle cx="50" cy="50" r="42" stroke="url(#lgrad)" stroke-width="6"/>
+
+  <!-- map routes flowing out of the R toward the nodes -->
+  <g stroke="url(#lgrad)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 4">
+    <path d="M58 33 C64 26 64 20 71 14"/>
+    <path d="M62 55 C72 55 80 57 91 54"/>
+    <path d="M40 52 C30 50 22 52 12 50"/>
+    <path d="M42 64 C40 76 40 80 36 89"/>
+  </g>
+
+  <!-- the R (drawn over the route starts so they merge seamlessly) -->
+  <text x="50" y="66" text-anchor="middle" font-size="48" font-weight="800"
+        font-family="Georgia, 'Times New Roman', serif" fill="url(#lgrad)">R</text>
+
+  <!-- gold nodes on the ring -->
+  <circle cx="71" cy="14" r="8" fill="#f0c55e"/>
+  <circle cx="91" cy="54" r="8" fill="#f0c55e"/>
+  <circle cx="12" cy="50" r="6" fill="#f0c55e"/>
+  <circle cx="36" cy="89" r="8" fill="#f0c55e"/>
+</svg>
