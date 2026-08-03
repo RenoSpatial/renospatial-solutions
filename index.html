@@ -1897,6 +1897,75 @@
     .card { padding: 1.35rem 1.15rem; }
   }
 
+  /* ---------- Accessibility Feature Overrides ---------- */
+
+  /* 1. Hide Graphics (data-feat="noimg") */
+  html.a11y-noimg-1 img,
+  html.a11y-noimg-1 canvas,
+  html.a11y-noimg-1 .flow-icon-box,
+  html.a11y-noimg-1 .flowchart-svg-lines,
+  html.a11y-noimg-1 .card .icon,
+  html.a11y-noimg-1 .contact-ico-box,
+  html.a11y-noimg-1 .map-lines,
+  html.a11y-noimg-1 .section-fx,
+  html.a11y-noimg-1 .uc-icon-wrap,
+  html.a11y-noimg-1 main svg {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* 2. Pause Animations (data-feat="pause" & WCAG reduced motion) */
+  body.anim-paused *,
+  html.a11y-pause-1 *,
+  body.anim-paused *::before,
+  body.anim-paused *::after,
+  html.a11y-pause-1 *::before,
+  html.a11y-pause-1 *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-play-state: paused !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  /* 3. Contrast + */
+  html.a11y-contrast-1 { filter: contrast(150%); }
+
+  /* 4. Highlight Links */
+  html.a11y-links-1 a {
+    text-decoration: underline !important;
+    font-weight: 700 !important;
+    background: rgba(240, 197, 94, 0.25) !important;
+    color: #ffffff !important;
+  }
+
+  /* 5. Bigger Text */
+  html.a11y-text-1 { font-size: 110%; }
+  html.a11y-text-2 { font-size: 125%; }
+  html.a11y-text-3 { font-size: 140%; }
+
+  /* 6. Text Spacing */
+  html.a11y-spacing-1 * { letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
+  html.a11y-spacing-2 * { letter-spacing: 0.22em !important; word-spacing: 0.3em !important; }
+
+  /* 7. Line Height */
+  html.a11y-lh-1 * { line-height: 1.8 !important; }
+  html.a11y-lh-2 * { line-height: 2.2 !important; }
+
+  /* 8. Dyslexia Friendly Font */
+  html.a11y-dyslexia-1 * { font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important; }
+
+  /* 9. Align Left */
+  html.a11y-align-1 body * { text-align: left !important; }
+
+  /* 10. Saturation */
+  html.a11y-sat-1 { filter: saturate(50%); }
+  html.a11y-sat-2 { filter: saturate(0%); }
+
+  /* 11. Dim Background */
+  html.a11y-dim-1 body { background: #000000 !important; }
+  html.a11y-dim-1 canvas { opacity: 0.1 !important; }
+
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
