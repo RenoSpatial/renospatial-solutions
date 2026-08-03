@@ -70,7 +70,12 @@
     "Business intelligence dashboards", "Power BI", "Data visualization",
     "Automated reporting", "Business trends and insights",
     "Project management systems", "Work order management",
-    "Internal communications automation"
+    "Internal communications automation",
+    "Field data collection", "Mobile data capture", "Digital inspection forms",
+    "Asset inventory and condition assessment", "Computer vision",
+    "Image recognition", "Speech to structured data",
+    "Drone inspection", "UAV survey", "Wearable devices", "Smart glasses",
+    "Field service management"
   ],
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
@@ -96,6 +101,8 @@
         "description": "Draft customer replies from ticket history and knowledge base, and resolve routine issues conversationally by chat or voice with human escalation." } },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Web mapping applications",
         "description": "Optional. View clients, sites and jobs geographically using open-source mapping, Esri ArcGIS, or the low-code mapping already included in licences you hold." } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Field inventory and inspection capture",
+        "description": "Replace hand-typed field forms with photo, video or spoken capture. AI drafts the inspection or inventory record from the image and speech, tags it to the asset and GPS location, and the worker approves it with one tap. Drone capture for high-risk inspections such as confined spaces, roofs and energized equipment." } },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dashboards, automated reporting and project visibility",
         "description": "Live dashboards showing business trends and insights, shared project and task tracking, and routine reports that generate and distribute themselves instead of being assembled by hand." } },
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Legacy system replacement and modernization",
@@ -523,6 +530,7 @@
     font-weight: 500;
     position: relative;
     padding-bottom: 3px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
   }
 
   nav a::after {
@@ -533,11 +541,23 @@
     background: var(--grad);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.25s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   }
 
-  nav a:hover { color: var(--ink); }
-  nav a:hover::after { transform: scaleX(1); }
+  nav a:hover,
+  nav a.active {
+    color: var(--gold);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(240, 197, 94, 0.65);
+  }
+
+  nav a:hover::after,
+  nav a.active::after {
+    transform: scaleX(1);
+    background: var(--gold);
+    box-shadow: 0 0 10px rgba(240, 197, 94, 0.85);
+    height: 2.5px;
+  }
 
   /* ---------- Hero ---------- */
   .hero {
@@ -579,6 +599,7 @@
     display: block;
   }
 
+  /* ---------- Hero ---------- */
   .hero-inner {
     position: relative;
     z-index: 2;
@@ -586,6 +607,7 @@
     margin: 0 auto;
     padding: 7rem 1.5rem 5rem;
     width: 100%;
+    text-align: left;
   }
 
   .chip {
@@ -595,7 +617,7 @@
     border: 1px solid rgba(240, 197, 94, 0.3);
     background: rgba(18, 34, 56, 0.65);
     border-radius: 999px;
-    padding: 0.4rem 1rem;
+    padding: 0.4rem 1.1rem;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--ink-soft);
@@ -627,6 +649,7 @@
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.08;
+    text-align: left;
   }
 
   .hero h1 .grad {
@@ -650,8 +673,10 @@
     color: var(--ink-soft);
     display: flex;
     align-items: baseline;
+    justify-content: flex-start;
     gap: 0.55rem;
     flex-wrap: wrap;
+    text-align: left;
   }
 
   #rotator {
@@ -665,9 +690,12 @@
 
   .hero p.lede {
     margin-top: 1.5rem;
+    margin-left: 0;
+    margin-right: auto;
     max-width: 56ch;
     font-size: clamp(1rem, 2vw, 1.15rem);
     color: var(--ink-soft);
+    text-align: left;
   }
 
   .hero-ctas {
@@ -675,6 +703,25 @@
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  /* Centered Hero on Mobile View */
+  @media (max-width: 768px) {
+    .hero-inner {
+      text-align: center;
+    }
+    .hero h1,
+    .hero p.lede {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .rotator-line,
+    .hero-ctas {
+      justify-content: center;
+      text-align: center;
+    }
   }
 
   .btn {
@@ -849,28 +896,72 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 2rem 1.7rem;
-    transition: transform 0.15s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease,
+                background 0.3s ease;
     transform-style: preserve-3d;
-    will-change: transform;
+    will-change: transform, box-shadow;
+    overflow: hidden;
   }
 
-  .card::before {
+  @property --border-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes cardBorderRotate {
+    0% { --border-angle: 0deg; }
+    100% { --border-angle: 360deg; }
+  }
+
+  /* Continuous circulating border glow on card hover/focus */
+  .card::before,
+  .uc::before {
     content: "";
     position: absolute;
     inset: -1px;
-    border-radius: var(--radius);
-    padding: 1px;
-    background: var(--grad);
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--border-angle, 0deg) at 50% 50%,
+      transparent 0%,
+      transparent 55%,
+      rgba(240, 197, 94, 0.35) 75%,
+      #f7d98c 92%,
+      rgba(240, 197, 94, 0.35) 97%,
+      transparent 100%
+    );
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
     pointer-events: none;
+    animation: cardBorderRotate 6s linear infinite;
   }
 
-  .card:hover::before { opacity: 1; }
-  .card:hover { box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45); }
+  .card::after,
+  .uc::after {
+    display: none;
+  }
+
+  .card:hover::before,
+  .card:focus-within::before,
+  .uc:hover::before,
+  .uc:focus-within::before,
+  .uc.is-open::before {
+    opacity: 1;
+  }
+
+  .card:hover,
+  .card:focus-within {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(240, 197, 94, 0.22);
+    background: linear-gradient(145deg, #182e4b 0%, #112035 100%);
+    border-color: rgba(240, 197, 94, 0.45);
+  }
 
   .card .icon {
     width: 52px; height: 52px;
@@ -882,6 +973,14 @@
     background: rgba(240, 197, 94, 0.09);
     border: 1px solid rgba(240, 197, 94, 0.28);
     transform: translateZ(30px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover .icon {
+    transform: translateZ(30px) translateY(-3px) scale(1.1);
+    background: rgba(240, 197, 94, 0.22);
+    border-color: rgba(240, 197, 94, 0.65);
+    box-shadow: 0 0 20px rgba(240, 197, 94, 0.4);
   }
 
   .card h3 {
@@ -889,12 +988,23 @@
     font-weight: 750;
     margin-bottom: 0.6rem;
     transform: translateZ(24px);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+
+  .card:hover h3 {
+    color: #ffffff;
+    text-shadow: 0 0 16px rgba(240, 197, 94, 0.35);
   }
 
   .card p {
     font-size: 0.95rem;
     color: var(--ink-soft);
     transform: translateZ(14px);
+    transition: color 0.3s ease;
+  }
+
+  .card:hover p {
+    color: #d2e3f8;
   }
 
   /* ---------- Use cases ---------- */
@@ -911,16 +1021,47 @@
   }
 
   .uc {
+    position: relative;
     background: var(--panel);
     border: 1px solid var(--line);
     border-left: 3px solid var(--gold);
     border-radius: 12px;
     padding: 1.5rem 1.4rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease,
+                background 0.3s ease,
+                border-left-width 0.2s ease;
+    overflow: hidden;
   }
 
-  .uc h3 { font-size: 1.1rem; font-weight: 750; margin-bottom: 0.8rem; }
+  /* Lively Hover for Use Case Cards */
+  .uc:hover,
+  .uc:focus-within {
+    transform: translateY(-6px) scale(1.018);
+    background: linear-gradient(145deg, #193152 0%, #122238 100%);
+    border-color: rgba(240, 197, 94, 0.45);
+    border-left-width: 5px;
+    border-left-color: #f7d98c;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55), 0 0 28px rgba(240, 197, 94, 0.22);
+  }
 
-  .uc p { font-size: 0.93rem; color: var(--ink-soft); }
+  .uc h3, .uc .uc-title-text {
+    font-size: 1.1rem;
+    font-weight: 750;
+    margin: 0;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+
+  .uc:hover h3,
+  .uc:hover .uc-title-text {
+    color: #ffffff;
+    text-shadow: 0 0 14px rgba(240, 197, 94, 0.35);
+  }
+
+  .uc p { font-size: 0.93rem; color: var(--ink-soft); transition: color 0.3s ease; }
+  .uc:hover p { color: #d0e1f6; }
+
   .uc .prob { margin-bottom: 0.9rem; }
 
   .uc .tag {
@@ -930,7 +1071,11 @@
     letter-spacing: 0.13em;
     text-transform: uppercase;
     margin-bottom: 0.2rem;
+    transition: transform 0.25s ease, text-shadow 0.25s ease;
   }
+  .uc:hover .tag-p { transform: translateX(3px); text-shadow: 0 0 10px rgba(231, 145, 145, 0.6); }
+  .uc:hover .tag-s { transform: translateX(3px); text-shadow: 0 0 10px rgba(240, 197, 94, 0.6); }
+
   .uc .tag-p { color: #e79191; }
   .uc .tag-s { color: var(--gold); }
 
@@ -938,84 +1083,561 @@
   .uc-ai { border-left-color: var(--blue); }
   .uc-ai .tag-s { color: var(--blue); }
 
+  .uc-ai::before {
+    background: conic-gradient(
+      from var(--border-angle, 0deg) at 50% 50%,
+      transparent 0%,
+      transparent 55%,
+      rgba(111, 163, 232, 0.35) 75%,
+      #9cd0ff 92%,
+      rgba(111, 163, 232, 0.35) 97%,
+      transparent 100%
+    );
+  }
+
+  .uc-ai:hover,
+  .uc-ai:focus-within {
+    border-color: rgba(111, 163, 232, 0.5);
+    border-left-color: #9cd0ff;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55), 0 0 28px rgba(111, 163, 232, 0.28);
+    background: linear-gradient(145deg, #16345b 0%, #102138 100%);
+  }
+
+  .uc-ai:hover h3,
+  .uc-ai:hover .uc-title-text {
+    color: #ffffff;
+    text-shadow: 0 0 14px rgba(111, 163, 232, 0.4);
+  }
+
+  .uc-ai:hover .tag-s { text-shadow: 0 0 10px rgba(111, 163, 232, 0.6); }
+
+  /* Header & Toggle for Mobile Collapsible Cards */
+  .uc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    padding: 0;
+    cursor: default;
+  }
+
+  .uc-icon-wrap {
+    display: none; /* hidden on desktop */
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(240, 197, 94, 0.1);
+    border: 1px solid rgba(240, 197, 94, 0.25);
+    color: var(--gold);
+    flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+  }
+
+  .uc-ai .uc-icon-wrap {
+    background: rgba(111, 163, 232, 0.1);
+    border-color: rgba(111, 163, 232, 0.25);
+    color: var(--blue);
+  }
+
+  .uc-chevron {
+    transition: transform 0.3s ease;
+  }
+
+  .uc .uc-body {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease,
+                margin 0.35s ease;
+  }
+
+  .uc .uc-body-inner {
+    overflow: hidden;
+  }
+
+  /* Mobile Actions Bar (Expand/Collapse All) */
+  .mobile-uc-controls {
+    display: none;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  .btn-toggle-all {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-toggle-all:hover, .btn-toggle-all:focus {
+    background: rgba(240, 197, 94, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Mobile Collapsible styling (screens <= 768px) */
+  @media (max-width: 768px) {
+    .mobile-uc-controls {
+      display: flex;
+    }
+
+    .uc-head {
+      cursor: pointer;
+      padding-bottom: 0.2rem;
+    }
+
+    .uc-icon-wrap {
+      display: flex;
+    }
+
+    .uc-grid {
+      gap: 0.85rem;
+    }
+
+    .uc {
+      padding: 1.1rem 1.15rem;
+    }
+
+    .uc .uc-body {
+      grid-template-rows: 0fr;
+      opacity: 0;
+      margin-top: 0;
+    }
+
+    .uc.is-open .uc-body {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      margin-top: 0.85rem;
+    }
+
+    .uc.is-open .uc-chevron {
+      transform: rotate(180deg);
+    }
+
+    .uc.is-open .uc-icon-wrap {
+      background: rgba(240, 197, 94, 0.25);
+      border-color: var(--gold);
+    }
+
+    .uc-ai.is-open .uc-icon-wrap {
+      background: rgba(111, 163, 232, 0.25);
+      border-color: var(--blue);
+    }
+
+    /* Active touch feedback on mobile cards */
+    .uc:active, .card:active {
+      transform: scale(0.985);
+      transition: transform 0.1s ease;
+    }
+  }
+
   /* ---------- Principles ---------- */
+  /* ---------- Flowchart Pipeline (How I Work) ---------- */
   .principles {
-    margin-top: 3rem;
-    padding-top: 2.2rem;
+    margin-top: 4rem;
+    padding-top: 2.5rem;
     border-top: 1px solid var(--line);
+    position: relative;
   }
 
   .principles h3 {
-    font-size: 1.15rem;
-    font-weight: 750;
-    margin-bottom: 1.4rem;
-  }
-
-  .prin-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
-    gap: 1.1rem 1.8rem;
-    list-style: none;
-  }
-
-  .prin-grid li {
-    display: flex;
-    gap: 0.8rem;
-    align-items: flex-start;
-  }
-
-  .prin-grid .num {
-    flex-shrink: 0;
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    border: 1px solid rgba(240, 197, 94, 0.45);
-    color: var(--gold);
-    font-size: 0.75rem;
+    font-size: 1.35rem;
     font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+  }
+
+  .flowchart-lede {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    max-width: 58ch;
+    margin-bottom: 2.2rem;
+  }
+
+  .flowchart-wrap {
+    position: relative;
+  }
+
+  .flowchart-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8rem 1.6rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Connecting dashed flow lines on desktop */
+  .flowchart-svg-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .flowchart-svg-lines path {
+    fill: none;
+    stroke: rgba(240, 197, 94, 0.25);
+    stroke-width: 2;
+    stroke-dasharray: 6 8;
+    animation: flowPulse 18s linear infinite;
+  }
+
+  @keyframes flowPulse {
+    to { stroke-dashoffset: -280; }
+  }
+
+  .flow-node {
+    position: relative;
+    background: rgba(18, 34, 56, 0.75);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.6rem 1.4rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease,
+                background 0.3s ease;
+    overflow: hidden;
+  }
+
+  .flow-node:hover,
+  .flow-node:focus-within {
+    transform: translateY(-6px) scale(1.02);
+    background: linear-gradient(145deg, #193152 0%, #122238 100%);
+    border-color: rgba(240, 197, 94, 0.45);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55), 0 0 28px rgba(240, 197, 94, 0.25);
+  }
+
+  .flow-node-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .flow-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(240, 197, 94, 0.12);
+    border: 1px solid rgba(240, 197, 94, 0.35);
+    color: var(--gold);
+    font-size: 0.82rem;
+    font-weight: 800;
+    box-shadow: 0 0 12px rgba(240, 197, 94, 0.2);
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+
+  .flow-node:hover .flow-badge {
+    transform: scale(1.1);
+    background: rgba(240, 197, 94, 0.25);
+    box-shadow: 0 0 18px rgba(240, 197, 94, 0.4);
+  }
+
+  .flow-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(111, 163, 232, 0.1);
+    border: 1px solid rgba(111, 163, 232, 0.28);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 0.15rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, border-color 0.3s ease;
   }
 
-  .prin-grid strong { display: block; font-size: 0.97rem; margin-bottom: 0.15rem; }
-  .prin-grid span.txt { font-size: 0.9rem; color: var(--ink-soft); }
+  .flow-node:hover .flow-icon-box {
+    transform: translateY(-2px) scale(1.08);
+    background: rgba(240, 197, 94, 0.18);
+    border-color: rgba(240, 197, 94, 0.5);
+  }
+
+  .flow-node h4 {
+    font-size: 1.08rem;
+    font-weight: 750;
+    color: #ffffff;
+    margin-bottom: 0.2rem;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+
+  .flow-node:hover h4 {
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(240, 197, 94, 0.35);
+  }
+
+  .flow-node .flow-tagline {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+    display: block;
+  }
+
+  .flow-node p {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    transition: color 0.3s ease;
+  }
+
+  .flow-node:hover p {
+    color: #d0e1f6;
+  }
+
+  /* Micro-animations inside flowchart icons */
+  .flow-scan-ray {
+    transform-origin: 16px 16px;
+    animation: iconspin 4s linear infinite;
+  }
+  .flow-node:hover .flow-scan-ray {
+    animation-duration: 1.5s;
+  }
+
+  /* Phase 1: Radar Dots Brighten & Dim */
+  .radar-dot-center {
+    animation: centerPulse 2s ease-in-out infinite alternate;
+    transform-origin: 16px 16px;
+  }
+  @keyframes centerPulse {
+    from { transform: scale(0.9); fill: #6fa3e8; }
+    to { transform: scale(1.25); fill: #9cd0ff; }
+  }
+
+  .radar-dot-discovered.dot-1 { animation: radarBlink 2.8s ease-in-out infinite 0.2s; transform-origin: 23px 9px; }
+  .radar-dot-discovered.dot-2 { animation: radarBlink 2.8s ease-in-out infinite 1.0s; transform-origin: 9px 20px; }
+  .radar-dot-discovered.dot-3 { animation: radarBlink 2.8s ease-in-out infinite 1.8s; transform-origin: 21px 23px; }
+
+  @keyframes radarBlink {
+    0%, 100% { opacity: 0.15; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.35); filter: drop-shadow(0 0 4px rgba(240, 197, 94, 0.8)); }
+  }
+
+  /* Phase 2: Centralize Data - Database Disk Pulse & Converging Streams */
+  .db-disk-top {
+    animation: dbGlow 2s ease-in-out infinite alternate;
+  }
+
+  .db-disk-mid {
+    animation: dbMidPulse 2s ease-in-out infinite alternate 0.5s;
+  }
+
+  @keyframes dbGlow {
+    from { fill: rgba(240, 197, 94, 0.15); stroke: #6fa3e8; }
+    to { fill: rgba(240, 197, 94, 0.45); stroke: #f0c55e; filter: drop-shadow(0 0 6px rgba(240, 197, 94, 0.8)); }
+  }
+
+  @keyframes dbMidPulse {
+    from { stroke: rgba(111, 163, 232, 0.4); }
+    to { stroke: rgba(240, 197, 94, 0.9); }
+  }
+
+  .data-inbound.in-1 { animation: flowIn1 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+  .data-inbound.in-2 { animation: flowIn2 2s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.5s; }
+  .data-inbound.in-3 { animation: flowIn3 2s cubic-bezier(0.4, 0, 0.2, 1) infinite 1.0s; }
+  .data-inbound.in-4 { animation: flowIn4 2s cubic-bezier(0.4, 0, 0.2, 1) infinite 1.5s; }
+
+  @keyframes flowIn1 {
+    0% { transform: translate(0, 0); opacity: 1; }
+    80% { transform: translate(11px, 5px); opacity: 1; }
+    100% { transform: translate(13px, 6px); opacity: 0; }
+  }
+
+  @keyframes flowIn2 {
+    0% { transform: translate(0, 0); opacity: 1; }
+    80% { transform: translate(-11px, 5px); opacity: 1; }
+    100% { transform: translate(-13px, 6px); opacity: 0; }
+  }
+
+  @keyframes flowIn3 {
+    0% { transform: translate(0, 0); opacity: 1; }
+    80% { transform: translate(11px, -5px); opacity: 1; }
+    100% { transform: translate(13px, -6px); opacity: 0; }
+  }
+
+  @keyframes flowIn4 {
+    0% { transform: translate(0, 0); opacity: 1; }
+    80% { transform: translate(-11px, -5px); opacity: 1; }
+    100% { transform: translate(-13px, -6px); opacity: 0; }
+  }
+
+  .data-flow-line {
+    stroke-dasharray: 3 3;
+    animation: lineflow 1.5s linear infinite;
+  }
+
+  /* Phase 3: Hand Holding Animated Dollar Sign */
+  .dollar-sign-draw {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawDollar 2.6s ease-in-out infinite alternate;
+  }
+  @keyframes drawDollar {
+    0% { stroke-dashoffset: 40; opacity: 0.3; }
+    100% { stroke-dashoffset: 0; opacity: 1; filter: drop-shadow(0 0 6px rgba(240, 197, 94, 0.75)); }
+  }
+
+  .hand-cup {
+    animation: handGentlyLift 2.6s ease-in-out infinite alternate;
+    transform-origin: 16px 24px;
+  }
+  @keyframes handGentlyLift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-1.5px); }
+  }
+
+  /* Phase 5: Centered Small Smiley Expanding to Large Smiley */
+  .smiley-grow-group {
+    transform-origin: 16px 16px;
+    animation: smileyExpand 2.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes smileyExpand {
+    0% {
+      transform: scale(0.42);
+      opacity: 0.65;
+      filter: drop-shadow(0 0 0px transparent);
+    }
+    50% {
+      transform: scale(0.8);
+      opacity: 0.85;
+    }
+    100% {
+      transform: scale(1.15);
+      opacity: 1;
+      filter: drop-shadow(0 0 8px rgba(240, 197, 94, 0.75));
+    }
+  }
+
+  /* Phase 6: Animated Document Writing + Video Emblem */
+  .doc-line {
+    stroke-dasharray: 14;
+    stroke-dashoffset: 14;
+    animation: writeText 2.5s ease-in-out infinite alternate;
+  }
+  .doc-line.line-1 { animation-delay: 0s; }
+  .doc-line.line-2 { animation-delay: 0.35s; }
+  .doc-line.line-3 { animation-delay: 0.7s; }
+
+  @keyframes writeText {
+    from { stroke-dashoffset: 14; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  .video-emblem {
+    animation: videoPulse 2.5s ease-in-out infinite alternate;
+    transform-origin: 23px 21px;
+  }
+
+  @keyframes videoPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); filter: drop-shadow(0 0 6px rgba(240, 197, 94, 0.7)); }
+  }
+
+  .flow-chart-trend {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: chartDraw 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes chartDraw {
+    from { stroke-dashoffset: 40; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* Responsive Flowchart (Mobile & Tablet) */
+  @media (max-width: 900px) {
+    .flowchart-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.4rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .flowchart-grid {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+    .flowchart-svg-lines {
+      display: none;
+    }
+  }
 
   /* ---------- FAQ ---------- */
-  .faq { max-width: 780px; }
+  .faq { max-width: 820px; }
 
-  .faq details {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    /* slightly translucent so the drifting question marks read behind it */
+  .faq-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  .faq-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .uc.faq-card {
+    border-left-color: var(--gold);
     background: rgba(18, 34, 56, 0.74);
     backdrop-filter: blur(3px);
-    margin-bottom: 0.7rem;
   }
 
-  .faq summary {
+  .uc.faq-card .uc-head {
     cursor: pointer;
-    padding: 1rem 1.2rem;
-    font-weight: 650;
-    list-style: none;
+    padding-bottom: 0;
+  }
+
+  .uc.faq-card .uc-icon-wrap {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
   }
-  .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::after {
-    content: "+";
-    color: var(--gold);
-    font-size: 1.35rem;
-    line-height: 1;
-    flex-shrink: 0;
+
+  .uc.faq-card .uc-body {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    margin-top: 0;
   }
-  .faq details[open] summary::after { content: "\2212"; }
-  .faq summary:hover { background: var(--bg-soft); }
-  .faq .ans { padding: 0 1.2rem 1.1rem; color: var(--ink-soft); font-size: 0.95rem; }
+
+  .uc.faq-card.is-open .uc-body {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    margin-top: 0.85rem;
+  }
+
+  .uc.faq-card.is-open .uc-chevron {
+    transform: rotate(180deg);
+  }
+
+  .uc.faq-card.is-open .uc-icon-wrap {
+    background: rgba(240, 197, 94, 0.25);
+    border-color: var(--gold);
+  }
+
+  .faq .ans { color: var(--ink-soft); font-size: 0.95rem; margin: 0; }
+  .uc.faq-card:hover .ans { color: #d0e1f6; }
 
   /* ---------- Animated pillar icons ---------- */
+  .icon .orbit-a,
+  .icon .orbit-b,
   .icon .rays,
   .icon .core,
   .icon .gear-a,
@@ -1025,39 +1647,59 @@
     transform-origin: center;
   }
 
-  /* Innovation: rotating rays + pulsing core */
-  .icon .rays { animation: iconspin 16s linear infinite; }
-  .card:hover .rays { animation-duration: 4s; }
+  /* Innovation: Counter-rotating dual orbit rings + pulsing atom core */
+  .icon .orbit-a { animation: iconspin 10s linear infinite; }
+  .icon .orbit-b { animation: iconspinrev 6s linear infinite; }
+  .card:hover .orbit-a { animation-duration: 2.5s; }
+  .card:hover .orbit-b { animation-duration: 1.5s; }
 
-  .icon .core { animation: corepulse 3s ease-in-out infinite; }
+  .icon .core { animation: corepulse 2.4s ease-in-out infinite; }
+  .icon .core-spark { animation: sparkPulse 1.8s ease-in-out infinite alternate; transform-origin: center; }
 
-  @keyframes iconspin { to { transform: rotate(360deg); } }
+  @keyframes iconspin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes iconspinrev {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
 
   @keyframes corepulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.25); opacity: 0.7; }
+    0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 4px rgba(240, 197, 94, 0.4)); }
+    50% { transform: scale(1.3); opacity: 0.85; filter: drop-shadow(0 0 10px rgba(240, 197, 94, 0.8)); }
   }
 
-  /* Automation: meshing gears turning in opposite directions */
-  .icon .gear-a { animation: iconspin 8s linear infinite; }
-  .icon .gear-b { animation: iconspinrev 5.4s linear infinite; }
-  .card:hover .gear-a { animation-duration: 2.4s; }
-  .card:hover .gear-b { animation-duration: 1.6s; }
+  @keyframes sparkPulse {
+    from { transform: scale(0.8); opacity: 0.6; }
+    to { transform: scale(1.4); opacity: 1; }
+  }
 
-  @keyframes iconspinrev { to { transform: rotate(-360deg); } }
+  /* Automation: Meshing gears turning in opposite directions with sync line */
+  .icon .gear-a { animation: iconspin 7s linear infinite; }
+  .icon .gear-b { animation: iconspinrev 4.5s linear infinite; }
+  .card:hover .gear-a { animation-duration: 2s; }
+  .card:hover .gear-b { animation-duration: 1.2s; }
 
-  /* Integration: nodes pulsing in sequence + data flowing along links */
-  .icon .inode { animation: corepulse 2.6s ease-in-out infinite; }
-  .icon .inode:nth-of-type(2) { animation-delay: 0.45s; }
-  .icon .inode:nth-of-type(3) { animation-delay: 0.9s; }
+  .icon .gear-sync-line {
+    stroke-dasharray: 4 4;
+    animation: lineflow 1.2s linear infinite;
+  }
+  .card:hover .gear-sync-line { animation-duration: 0.4s; }
+
+  /* Integration: 4-node beacon pulse + cross-directional data stream */
+  .icon .inode.node-1 { animation: corepulse 2.2s ease-in-out infinite 0s; }
+  .icon .inode.node-2 { animation: corepulse 2.2s ease-in-out infinite 0.5s; }
+  .icon .inode.node-3 { animation: corepulse 2.2s ease-in-out infinite 1.0s; }
+  .icon .inode.node-4 { animation: corepulse 2.2s ease-in-out infinite 1.5s; }
 
   .icon .ilines {
-    stroke-dasharray: 3 4;
-    animation: lineflow 1.6s linear infinite;
+    stroke-dasharray: 4 4;
+    animation: lineflow 1.4s linear infinite;
   }
-  .card:hover .ilines { animation-duration: 0.5s; }
+  .card:hover .ilines { animation-duration: 0.4s; }
 
-  @keyframes lineflow { to { stroke-dashoffset: -14; } }
+  @keyframes lineflow { to { stroke-dashoffset: -16; } }
 
   /* ---------- Contact ---------- */
   #contact {
@@ -1084,8 +1726,69 @@
   .contact-panel .row {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
-    padding: 0.8rem 0;
+    gap: 1.1rem;
+    padding: 0.9rem 0;
+  }
+
+  .contact-ico-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(18, 34, 56, 0.85);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .contact-panel .row:hover .contact-ico-box {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 0 14px rgba(240, 197, 94, 0.35);
+  }
+
+  /* Location Pin Animation */
+  .ico-loc .pin-head { animation: bouncePin 2.6s ease-in-out infinite; transform-origin: bottom center; }
+  .ico-loc .pin-radar { animation: radarExpand 2.6s ease-out infinite; transform-origin: 12px 19px; }
+
+  @keyframes bouncePin {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  @keyframes radarExpand {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  /* Email Flap Animation */
+  .ico-email .env-flap { animation: flapMotion 3s ease-in-out infinite; transform-origin: top center; }
+  .ico-email .mail-spark { animation: mailPulse 2s ease-in-out infinite alternate; }
+
+  @keyframes flapMotion {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-1.5px) scaleY(0.9); }
+  }
+
+  @keyframes mailPulse {
+    from { opacity: 0.3; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1.4); }
+  }
+
+  /* LinkedIn Orbit Node Animation */
+  .ico-li .li-node { animation: liNodePulse 2.2s ease-in-out infinite alternate; transform-origin: 17.5px 6.5px; }
+  .ico-li .li-in { animation: liGlow 3s ease-in-out infinite; }
+
+  @keyframes liNodePulse {
+    from { transform: scale(0.8); opacity: 0.7; }
+    to { transform: scale(1.3); opacity: 1; }
+  }
+
+  @keyframes liGlow {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(240, 197, 94, 0.4)); }
+    50% { filter: drop-shadow(0 0 8px rgba(240, 197, 94, 0.8)); }
   }
 
   .contact-panel .row + .row { border-top: 1px solid var(--line); }
@@ -1263,9 +1966,9 @@
     </svg>
     <canvas id="net" aria-hidden="true"></canvas>
     <div class="hero-inner">
-      <span class="chip"><span class="dot"></span>Power Platform + Enterprise GIS + AI</span>
+      <span class="chip"><span class="dot"></span>Workflow Automation &bull; Systems Integration &bull; AI Adoption</span>
       <h1>Renospatial <span class="grad">Solutions</span></h1>
-      <p class="rotator-line"><span aria-hidden="true">Driven by&nbsp;<span id="rotator">Innovation</span></span><span class="sr-only">Driven by Innovation, Automation, and Integration</span></p>
+      <p class="rotator-line"><span aria-hidden="true">Built for&nbsp;<span id="rotator">Innovation</span></span><span class="sr-only">Built for Innovation, Automation, and Integration</span></p>
       <p class="lede">Less manual work. Fewer things typed twice. Systems that finally talk to each other — built on the software your organization already pays for, with AI added where it genuinely earns its place.</p>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="#about">Learn More</a>
@@ -1295,83 +1998,223 @@
     <div class="wrap">
       <p class="kicker reveal">About</p>
       <h2 class="reveal">Innovation <span class="grad">+</span> Automation <span class="grad">+</span> Integration</h2>
-      <p class="section-lede reveal">A one-person team with a decade of GIS and IT management expertise, delivering tailored solutions that solve complex challenges and drive innovation.</p>
+      <p class="section-lede reveal">A one-person consultancy with a decade of GIS and IT management experience, helping organizations fix manual workflows, integrate disconnected systems, and adopt AI where it makes practical sense.</p>
 
       <div class="cards">
 
         <div class="card reveal" style="--d: 0s">
           <div class="icon">
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path class="rays" d="M13 2 V5 M13 21 V24 M2 13 H5 M21 13 H24 M5.2 5.2 L7.3 7.3 M18.7 18.7 L20.8 20.8 M20.8 5.2 L18.7 7.3 M7.3 18.7 L5.2 20.8" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round"/>
-              <circle class="core" cx="13" cy="13" r="4.2" stroke="#6fa3e8" stroke-width="1.8"/>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- Outer Orbit Ring A (Gold) -->
+              <g class="orbit-a">
+                <ellipse cx="17" cy="17" rx="13" ry="5.2" stroke="#f0c55e" stroke-width="1.6" stroke-dasharray="6 4"/>
+              </g>
+              <!-- Outer Orbit Ring B (Blue) -->
+              <g class="orbit-b">
+                <ellipse cx="17" cy="17" rx="13" ry="5.2" stroke="#6fa3e8" stroke-width="1.6" stroke-dasharray="6 4"/>
+              </g>
+              <!-- Glowing Center Atom Core -->
+              <circle class="core" cx="17" cy="17" r="4.5" fill="#f0c55e" stroke="#6fa3e8" stroke-width="1.5"/>
+              <circle class="core-spark" cx="17" cy="17" r="1.8" fill="#ffffff"/>
             </svg>
           </div>
           <h3>Innovation</h3>
-          <p>Renospatial Solutions combines cutting-edge technologies—ArcGIS Enterprise/Online, Microsoft Power Platform, FME, Maps APIs, and Generative AI—to enhance efficiency. Our versatile approach seamlessly integrates with existing systems, allowing us to tackle unique challenges innovatively.</p>
+          <p>Connecting enterprise GIS, Microsoft Power Platform, FME, and AI capabilities into practical workflows. New tools are chosen to fit what you already run, so your team solves specific bottlenecks without adding unnecessary tech stack complexity.</p>
         </div>
 
         <div class="card reveal" style="--d: 0.12s">
           <div class="icon">
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- Gear A (Gold Primary) -->
               <g class="gear-a" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round">
-                <circle cx="10.5" cy="15" r="4.4"/>
-                <circle cx="10.5" cy="15" r="1.4" fill="#f0c55e" stroke="none"/>
-                <path d="M10.5 8.9 L10.5 10.6 M10.5 21.1 L10.5 19.4 M4.4 15 L6.1 15 M16.6 15 L14.9 15 M14.81 10.69 L13.61 11.89 M6.19 10.69 L7.39 11.89 M14.81 19.31 L13.61 18.11 M6.19 19.31 L7.39 18.11"/>
+                <circle cx="13" cy="20" r="6"/>
+                <circle cx="13" cy="20" r="2" fill="#f0c55e" stroke="none"/>
+                <path d="M13 11.5 V14 M13 26 V28.5 M4.5 20 H7 M19 20 H21.5 M7 14 L8.8 15.8 M17.2 24.2 L19 26 M7 26 L8.8 24.2 M17.2 15.8 L19 14"/>
               </g>
+              <!-- Gear B (Blue Secondary) -->
               <g class="gear-b" stroke="#6fa3e8" stroke-width="1.6" stroke-linecap="round">
-                <circle cx="18.5" cy="7.5" r="2.9"/>
-                <circle cx="18.5" cy="7.5" r="1" fill="#6fa3e8" stroke="none"/>
-                <path d="M22.8 7.5 L21.4 7.5 M14.2 7.5 L15.6 7.5 M20.65 3.78 L19.95 4.99 M16.35 3.78 L17.05 4.99 M16.35 11.22 L17.05 10.01 M20.65 11.22 L19.95 10.01"/>
+                <circle cx="23" cy="10" r="4.5"/>
+                <circle cx="23" cy="10" r="1.2" fill="#6fa3e8" stroke="none"/>
+                <path d="M23 3.5 V5.5 M23 14.5 V16.5 M16.5 10 H18.5 M27.5 10 H29.5 M18.4 5.4 L19.8 6.8 M26.2 13.2 L27.6 14.6 M18.4 14.6 L19.8 13.2 M26.2 6.8 L27.6 5.4"/>
               </g>
+              <!-- Energy Sync Connection Line -->
+              <path class="gear-sync-line" d="M13 20 L23 10" stroke="rgba(240, 197, 94, 0.4)" stroke-width="1.5"/>
             </svg>
           </div>
           <h3>Automation</h3>
-          <p>Renospatial Solutions' automation processes are seamlessly designed to automate and optimize data management while streamlining workflows. Whether it's enhancing efficiency, improving system performance, or ensuring reliable operations, our dependable automations empower organizations to achieve their goals with confidence.</p>
+          <p>Automating repetitive tasks like manual data entry, document reading, and request routing. Workflows run dependably in the background, keeping records synchronized between systems and freeing staff from repetitive re-keying.</p>
         </div>
 
         <div class="card reveal" style="--d: 0.24s">
           <div class="icon">
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path class="ilines" d="M9 6 H17 M7.5 8.6 L11.4 17.4 M18.5 8.6 L14.6 17.4" stroke="#a3b2c9" stroke-width="1.5"/>
-              <circle class="inode" cx="6" cy="6" r="3" stroke="#f0c55e" stroke-width="1.8"/>
-              <circle class="inode" cx="20" cy="6" r="3" stroke="#6fa3e8" stroke-width="1.8"/>
-              <circle class="inode" cx="13" cy="20" r="3" stroke="#f0c55e" stroke-width="1.8"/>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- Connection Network Lines -->
+              <path class="ilines" d="M7 7 L27 7 M27 7 L27 27 M27 27 L7 27 M7 27 L7 7 M7 7 L27 27 M27 7 L7 27" stroke="#6fa3e8" stroke-width="1.5"/>
+              <!-- Central Nexus -->
+              <circle class="core" cx="17" cy="17" r="3.5" fill="#f0c55e" stroke="#6fa3e8" stroke-width="1.5"/>
+              <!-- 4 Corner System Nodes -->
+              <circle class="inode node-1" cx="7" cy="7" r="3" stroke="#f0c55e" stroke-width="1.8" fill="#122238"/>
+              <circle class="inode node-2" cx="27" cy="7" r="3" stroke="#6fa3e8" stroke-width="1.8" fill="#122238"/>
+              <circle class="inode node-3" cx="27" cy="27" r="3" stroke="#f0c55e" stroke-width="1.8" fill="#122238"/>
+              <circle class="inode node-4" cx="7" cy="27" r="3" stroke="#6fa3e8" stroke-width="1.8" fill="#122238"/>
             </svg>
           </div>
           <h3>Integration</h3>
-          <p>Renospatial Solutions specialize in integrating client's existing or new information systems for operational efficiency. Expertise in both GIS and IT systems, we streamline workflows and optimize data management. Our tailored solutions are designed to solve complex challenges and drive innovation and efficiency.</p>
+          <p>Linking your databases, field tools, and core enterprise software so departments share a single, reliable source of truth instead of maintaining separate spreadsheets.</p>
         </div>
 
       </div>
 
       <div class="principles reveal">
         <h3>How I work</h3>
-        <ul class="prin-grid">
-          <li>
-            <span class="num" aria-hidden="true">1</span>
-            <span><strong>Start with what you already own</strong><span class="txt">Most organizations hold licences with capability never switched on. That is the cheapest place to find the first wins.</span></span>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">2</span>
-            <span><strong>Keep licensing lean</strong><span class="txt">Large recurring fees are the first thing scrutinized at budget time. Where open-source or something you already own is genuinely good enough, that is what I recommend.</span></span>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">3</span>
-            <span><strong>Build only what pays back</strong><span class="txt">Every proposal comes with an honest view of effort against return. If something will not repay the work, I will tell you that rather than build it.</span></span>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">4</span>
-            <span><strong>Hand it over maintainable</strong><span class="txt">Solutions are built and documented so your own team can run and adjust them. You should not need a consultant on retainer to keep the lights on.</span></span>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">5</span>
-            <span><strong>Centralize the data first</strong><span class="txt">Automation and AI are only as good as what they read. One authoritative source beats clever tooling on scattered spreadsheets.</span></span>
-          </li>
-          <li>
-            <span class="num" aria-hidden="true">6</span>
-            <span><strong>Progressive, not big-bang</strong><span class="txt">Small wins that compound into real digital transformation, instead of a two-year programme that stalls before it delivers anything.</span></span>
-          </li>
-        </ul>
+        <p class="flowchart-lede">A structured methodology that turns complex systems into clean, automated operations without waste or budget bloat.</p>
+
+        <div class="flowchart-wrap">
+          <svg class="flowchart-svg-lines" viewBox="0 0 900 450" preserveAspectRatio="none" aria-hidden="true">
+            <!-- Top row connections (Node 1 -> Node 2 -> Node 3) -->
+            <path d="M 280 110 L 320 110" />
+            <path d="M 580 110 L 620 110" />
+            <!-- Downward connection from Node 3 to Node 4 -->
+            <path d="M 750 190 Q 750 250 750 310" />
+            <!-- Bottom row connections (Node 6 <- Node 5 <- Node 4) -->
+            <path d="M 620 340 L 580 340" />
+            <path d="M 320 340 L 280 340" />
+          </svg>
+
+          <div class="flowchart-grid">
+
+            <!-- Step 1 -->
+            <div class="flow-node">
+              <div class="flow-node-head">
+                <span class="flow-badge">01</span>
+                <div class="flow-icon-box">
+                  <svg class="flow-ico-svg" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <circle cx="16" cy="16" r="13" stroke="rgba(240, 197, 94, 0.3)" stroke-width="1.5"/>
+                    <circle cx="16" cy="16" r="7.5" stroke="rgba(111, 163, 232, 0.4)" stroke-width="1.2" stroke-dasharray="3 3"/>
+                    <path class="flow-scan-ray" d="M16 16 L27 10" stroke="#f0c55e" stroke-width="2" stroke-linecap="round"/>
+                    <circle class="radar-dot-center" cx="16" cy="16" r="3.2" fill="#6fa3e8"/>
+                    <circle class="radar-dot-discovered dot-1" cx="23" cy="9" r="2.4" fill="#f0c55e"/>
+                    <circle class="radar-dot-discovered dot-2" cx="9" cy="20" r="1.8" fill="#f0c55e"/>
+                    <circle class="radar-dot-discovered dot-3" cx="21" cy="23" r="1.5" fill="#6fa3e8"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="flow-tagline">Phase 1: Audit &amp; Discover</span>
+              <h4>Start with what you already own</h4>
+              <p>Most organizations hold licences with capability never switched on. That is the cheapest, fastest place to find your first wins.</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flow-node">
+              <div class="flow-node-head">
+                <span class="flow-badge">02</span>
+                <div class="flow-icon-box">
+                  <svg class="flow-ico-svg" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <!-- Central Database Cylinder -->
+                    <g class="db-stack">
+                      <ellipse class="db-disk db-disk-top" cx="16" cy="8" rx="8" ry="3" stroke="#f0c55e" stroke-width="1.8" fill="rgba(240, 197, 94, 0.25)"/>
+                      <path class="db-wall" d="M8 8 V22 C8 24.2 11.5 26 16 26 C20.5 26 24 24.2 24 22 V8" stroke="#6fa3e8" stroke-width="1.8" fill="none"/>
+                      <path class="db-disk db-disk-mid" d="M8 15 C8 17.2 11.5 19 16 19 C20.5 19 24 17.2 24 15" stroke="#6fa3e8" stroke-width="1.5" stroke-dasharray="3 3"/>
+                    </g>
+                    <!-- Inbound Converging Data Particles flowing into Central Hub -->
+                    <circle class="data-inbound in-1" cx="3" cy="6" r="1.8" fill="#f0c55e"/>
+                    <circle class="data-inbound in-2" cx="29" cy="6" r="1.8" fill="#f0c55e"/>
+                    <circle class="data-inbound in-3" cx="3" cy="24" r="1.8" fill="#6fa3e8"/>
+                    <circle class="data-inbound in-4" cx="29" cy="24" r="1.8" fill="#6fa3e8"/>
+                    <!-- Converging Data Flow Paths -->
+                    <path class="data-flow-line" d="M3 6 L12 10 M29 6 L20 10 M3 24 L12 20 M29 24 L20 20" stroke="rgba(240, 197, 94, 0.45)" stroke-width="1.2"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="flow-tagline">Phase 2: Foundation</span>
+              <h4>Centralize the data first</h4>
+              <p>Automation and AI are only as good as what they read. One authoritative source beats clever tooling running on scattered spreadsheets.</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flow-node">
+              <div class="flow-node-head">
+                <span class="flow-badge">03</span>
+                <div class="flow-icon-box">
+                  <svg class="flow-ico-svg" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <!-- Cupped Hand Holding Money -->
+                    <path class="hand-cup" d="M6 22 Q 16 29 26 22 M 9 24.5 Q 16 30 23 24.5 M4 19 C 7 21 11 22 16 22 C 21 22 25 21 28 19" stroke="#6fa3e8" stroke-width="1.8" stroke-linecap="round"/>
+                    <!-- Animated Dollar Sign floating above hand -->
+                    <path class="dollar-sign-draw" d="M16 5 V20 M12.5 8 C12.5 6 19.5 6 19.5 10 C19.5 14 12.5 13.5 12.5 17 C12.5 20.5 19.5 20.5 19.5 18.5" stroke="#f0c55e" stroke-width="2.2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="flow-tagline">Phase 3: Architecture</span>
+              <h4>Keep licensing lean</h4>
+              <p>Large recurring fees are the first thing scrutinized at budget time. Where open-source or existing tools fit, that is what I recommend.</p>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="flow-node">
+              <div class="flow-node-head">
+                <span class="flow-badge">04</span>
+                <div class="flow-icon-box">
+                  <svg class="flow-ico-svg" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="5" y="18" width="4" height="9" rx="1" fill="rgba(111, 163, 232, 0.4)" stroke="#6fa3e8" stroke-width="1.2"/>
+                    <rect x="12" y="13" width="4" height="14" rx="1" fill="rgba(111, 163, 232, 0.6)" stroke="#6fa3e8" stroke-width="1.2"/>
+                    <rect x="19" y="8" width="4" height="19" rx="1" fill="rgba(240, 197, 94, 0.4)" stroke="#f0c55e" stroke-width="1.2"/>
+                    <path class="flow-chart-trend" d="M4 21 L11 15 L18 10 L27 4" stroke="#f0c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="27" cy="4" r="2.5" fill="#f0c55e"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="flow-tagline">Phase 4: ROI Scoping</span>
+              <h4>Build only what pays back</h4>
+              <p>Every proposal comes with an honest view of effort against return. If a feature will not repay the work, I will tell you before building it.</p>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="flow-node">
+              <div class="flow-node-head">
+                <span class="flow-badge">05</span>
+                <div class="flow-icon-box">
+                  <svg class="flow-ico-svg" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <g class="smiley-grow-group">
+                      <!-- Outer Face Circle -->
+                      <circle cx="16" cy="16" r="12" stroke="#f0c55e" stroke-width="2" fill="rgba(240, 197, 94, 0.15)"/>
+                      <!-- Eyes -->
+                      <circle cx="11.5" cy="12.5" r="1.8" fill="#6fa3e8"/>
+                      <circle cx="20.5" cy="12.5" r="1.8" fill="#6fa3e8"/>
+                      <!-- Happy Smile Arc -->
+                      <path d="M10.5 17.5 Q 16 23.5 21.5 17.5" stroke="#f0c55e" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+              <span class="flow-tagline">Phase 5: Iteration</span>
+              <h4>Progressive, not big-bang</h4>
+              <p>Deliver small, high-impact wins that compound into lasting operational improvements, avoiding stalled two-year projects.</p>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="flow-node">
+              <div class="flow-node-head">
+                <span class="flow-badge">06</span>
+                <div class="flow-icon-box">
+                  <svg class="flow-ico-svg" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="5" y="4" width="16" height="22" rx="2" stroke="#6fa3e8" stroke-width="1.8" fill="rgba(18, 34, 56, 0.6)"/>
+                    <path class="doc-line line-1" d="M9 9 H17" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round"/>
+                    <path class="doc-line line-2" d="M9 14 H16" stroke="#6fa3e8" stroke-width="1.5" stroke-linecap="round"/>
+                    <path class="doc-line line-3" d="M9 18 H14" stroke="#6fa3e8" stroke-width="1.5" stroke-linecap="round"/>
+                    <g class="video-emblem">
+                      <circle cx="23" cy="21" r="6" fill="#122238" stroke="#f0c55e" stroke-width="1.5"/>
+                      <polygon points="21.5,18.5 26,21 21.5,23.5" fill="#f0c55e"/>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+              <span class="flow-tagline">Phase 6: Partnership</span>
+              <h4>Hand it over maintainable</h4>
+              <p>Solutions are built and documented with written guides and video walkthroughs so your team runs them independently. And whenever ongoing guidance or extra support is needed down the road, Renospatial Solutions is always here to support you.</p>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1384,48 +2227,113 @@
       <h2 class="reveal">Problems <span class="grad">worth automating</span></h2>
       <p class="section-lede reveal">Most organizations lose hours every week to work a computer should be doing. These are the patterns that come up again and again — and what modern automation, AI and GIS actually do about them.</p>
 
-      <div class="uc-grid">
+      <div class="mobile-uc-controls">
+        <button class="btn-toggle-all" data-target="ucGrid">Expand all</button>
+      </div>
+      <div class="uc-grid" id="ucGrid">
 
         <article class="uc reveal">
-          <h3>Manual data entry and re-keying</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>Staff type the same information into several systems — a permit into a spreadsheet, an invoice into finance, field notes into the GIS. It is slow, it introduces typos, and the versions drift apart.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>Automation moves each record between your systems the moment it is created, so information is entered once and appears everywhere it is needed. Usually built with Microsoft Power Automate — or whichever automation tool best fits the software you already run.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Manual data entry and re-keying</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Staff type the same information into several systems — a permit into a spreadsheet, an invoice into finance, field notes into the GIS. It is slow, it introduces typos, and the versions drift apart.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>Automation moves each record between your systems the moment it is created, so information is entered once and appears everywhere it is needed. Usually built with Microsoft Power Automate — or whichever automation tool best fits the software you already run.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.08s">
-          <h3>Data locked inside documents</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>Critical information sits in PDFs, scanned drawings, emailed forms and attachments that nobody has time to transcribe — so it never reaches a database where it can be reported on.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>AI reads those documents much as a person would — picking out the dates, amounts, names and addresses. The results are checked automatically for errors, then filed straight into your system. Nobody retypes anything. Built with AI document processing alongside data tools such as FME.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Data locked inside documents</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Critical information sits in PDFs, scanned drawings, emailed forms and attachments that nobody has time to transcribe — so it never reaches a database where it can be reported on.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>AI reads those documents much as a person would — picking out the dates, amounts, names and addresses. The results are checked automatically for errors, then filed straight into your system. Nobody retypes anything. Built with AI document processing alongside data tools such as FME.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.16s">
-          <h3>Sorting, categorizing and routing</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>Service requests, emails and reports are triaged by hand. It is inconsistent, it slows response times, and the knowledge often lives with one person.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>AI classification tags each item and routes it to the right team automatically, using rules and confidence thresholds you control — with anything uncertain still going to a human.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Sorting, categorizing and routing</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Service requests, emails and reports are triaged by hand. It is inconsistent, it slows response times, and the knowledge often lives with one person.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>AI classification tags each item and routes it to the right team automatically, using rules and confidence thresholds you control — with anything uncertain still going to a human.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.24s">
-          <h3>Reporting and communication silos</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>Each team keeps its own version of the truth in disconnected systems and private spreadsheets, and nobody is confident which number is current. Status travels by email chains, chased phone calls and standing meetings that exist only because there is nowhere to look it up.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>Connecting the systems you already run so they share one agreed set of records, with shared dashboards everyone can open and updates that arrive on their own. Routine reports are generated and distributed automatically instead of being assembled and emailed by hand. Built with integration tools such as Power Platform, FME or open-source alternatives, whichever suits your setup.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Reporting and communication silos</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Each team keeps its own version of the truth in disconnected systems and private spreadsheets, and nobody is confident which number is current. Status travels by email chains, chased phone calls and standing meetings that exist only because there is nowhere to look it up.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>Connecting the systems you already run so they share one agreed set of records, with shared dashboards everyone can open and updates that arrive on their own. Routine reports are generated and distributed automatically instead of being assembled and emailed by hand. Built with integration tools such as Power Platform, FME or open-source alternatives, whichever suits your setup.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.32s">
-          <h3>Technology you already pay for, unused</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>Microsoft 365, Power Platform and ArcGIS licences routinely include capability that was never switched on. Organizations buy new tools to solve problems their existing stack already covers.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>An assessment of what you already own, then a plan to activate it. In most engagements the first wins cost nothing in new licensing.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Technology you already pay for, unused</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Microsoft 365, Power Platform and ArcGIS licences routinely include capability that was never switched on. Organizations buy new tools to solve problems their existing stack already covers.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>An assessment of what you already own, then a plan to activate it. In most engagements the first wins cost nothing in new licensing.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.4s">
-          <h3>Not knowing what is cost-effective to adopt</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>The vendor landscape is overwhelming and every product claims to do everything. It is hard for a small team to judge what genuinely fits their budget and capacity.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>Vendor-neutral advice on right-sized tools, with honest estimates of licence cost, integration effort and how long it takes to pay back.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Not knowing what is cost-effective to adopt</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>The vendor landscape is overwhelming and every product claims to do everything. It is hard for a small team to judge what genuinely fits their budget and capacity.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>Vendor-neutral advice on right-sized tools, with honest estimates of licence cost, integration effort and how long it takes to pay back.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.48s">
-          <h3>Legacy systems that should be retired</h3>
-          <p class="prob"><span class="tag tag-p">The problem</span>Paper forms still being filled in by hand. A spreadsheet doing the job of a database. Software that lost vendor support years ago, or a product whose vendor has refused to modernize for your needs and offers no way to integrate or automate. That is usually the clearest sign a system has outlived its usefulness — it quietly caps what everyone around it can do.</p>
-          <p class="sol"><span class="tag tag-s">What solves it</span>Sometimes replacement is the honest answer. When a system cannot integrate, cannot automate and cannot be supported, the cost of working around it has already passed the cost of moving on. I help you make that call with evidence, plan the migration, carry the data across intact, and choose a successor that will still be maintainable in five years.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Legacy systems that should be retired</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Paper forms still being filled in by hand. A spreadsheet doing the job of a database. Software that lost vendor support years ago, or a product whose vendor has refused to modernize for your needs and offers no way to integrate or automate. That is usually the clearest sign a system has outlived its usefulness — it quietly caps what everyone around it can do.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>Sometimes replacement is the honest answer. When a system cannot integrate, cannot automate and cannot be supported, the cost of working around it has already passed the cost of moving on. I help you make that call with evidence, plan the migration, carry the data across intact, and choose a successor that will still be maintainable in five years.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="uc reveal" style="--d: 0.56s">
+          <button class="uc-head">
+            <span class="uc-title-text">Field inventory and inspections</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">The problem</span>Crews write findings on paper sheets or thumb long forms into phones in bad weather. Information gets retyped at the office, photos live unsaved on camera rolls, and inspection records remain incomplete.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>Field workers capture a photo or record a quick voice note. AI extracts the asset number, condition rating, defect type, and GPS location to draft the inspection record automatically — requiring only a single tap to approve. Photos attach directly to the asset record. For high-risk or hard-to-reach locations like roofs, towers, or confined spaces, drone footage can feed the same automated capture pipeline.</p>
+            </div>
+          </div>
         </article>
 
       </div>
@@ -1440,42 +2348,87 @@
       <h2 class="reveal">An AI agent that <span class="grad">does the work</span></h2>
       <p class="section-lede reveal">An AI agent that cannot reach your systems can only offer general advice. What makes one genuinely useful is everything you connect to it: secure access to the software you already run, skills built for the jobs your organization actually does, and orchestration so agents, skills and automations can hand work to one another. Built properly it becomes a shared workspace that grows with you — where most of the day's work gets finished without leaving it.</p>
 
-      <div class="uc-grid">
+      <div class="mobile-uc-controls">
+        <button class="btn-toggle-all" data-target="aiGrid">Expand all</button>
+      </div>
+      <div class="uc-grid" id="aiGrid">
 
         <article class="uc uc-ai reveal">
-          <h3>An agent that can see your workplace</h3>
-          <p class="prob"><span class="tag tag-p">Today</span>Answers live scattered across Outlook, Teams, SharePoint or Gmail, Chat and Drive. Finding what was agreed with a client three months ago means searching three applications and hoping you recall the right keyword.</p>
-          <p class="sol"><span class="tag tag-s">Connected</span>The agent is given secure access to Microsoft 365 or Google Workspace so it can read across email, chat and files with your existing permissions intact. Ask a plain question, get an answer assembled from the actual threads and documents.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">An agent that can see your workplace</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">Today</span>Answers live scattered across Outlook, Teams, SharePoint or Gmail, Chat and Drive. Finding what was agreed with a client three months ago means searching three applications and hoping you recall the right keyword.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>The agent is given secure access to Microsoft 365 or Google Workspace so it can read across email, chat and files with your existing permissions intact. Ask a plain question, get an answer assembled from the actual threads and documents.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.08s">
-          <h3>Chat with your business data</h3>
-          <p class="prob"><span class="tag tag-p">Today</span>Getting a number out of your everyday systems — the ticket system, customer records, finance, the asset register — means requesting a report, waiting for the one person who can write it, and receiving a spreadsheet that is already out of date.</p>
-          <p class="sol"><span class="tag tag-s">Connected</span>The agent is connected directly to those systems, so staff simply ask a question and get an answer from live information. No technical skills needed, no report queue, no waiting.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Chat with your business data</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">Today</span>Getting a number out of your everyday systems — the ticket system, customer records, finance, the asset register — means requesting a report, waiting for the one person who can write it, and receiving a spreadsheet that is already out of date.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>The agent is connected directly to those systems, so staff simply ask a question and get an answer from live information. No technical skills needed, no report queue, no waiting.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.16s">
-          <h3>Draft and resolve, not just search</h3>
-          <p class="prob"><span class="tag tag-p">Today</span>Every service ticket is read, researched and answered from scratch, even when it is the same question your team answered last week.</p>
-          <p class="sol"><span class="tag tag-s">Connected</span>The agent drafts the reply using that customer's history and your knowledge base, ready for a human to check and send. For routine issues it can guide staff — or the customer — to resolution by chat or voice, and escalate anything it is not confident about.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Draft and resolve, not just search</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">Today</span>Every service ticket is read, researched and answered from scratch, even when it is the same question your team answered last week.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>The agent drafts the reply using that customer's history and your knowledge base, ready for a human to check and send. For routine issues it can guide staff — or the customer — to resolution by chat or voice, and escalate anything it is not confident about.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.24s">
-          <h3>See your clients and work on a map</h3>
-          <p class="prob"><span class="tag tag-p">Today</span>Customer and job information sits in rows on a screen. Things that would be obvious on a map — where your work clusters, how far crews travel, which areas you barely cover, where demand is growing — stay hidden in a spreadsheet.</p>
-          <p class="sol"><span class="tag tag-s">Connected</span>Mapping puts clients, sites and jobs on a map anyone in the office can open. This one is optional — plenty of businesses never need it. If you do, it can be built with free open-source mapping, with Esri's ArcGIS, or with the drag-and-drop mapping already bundled in licences you hold. What matters is that it keeps working and stays easy to maintain after I hand it over.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">See your clients and work on a map</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">Today</span>Customer and job information sits in rows on a screen. Things that would be obvious on a map — where your work clusters, how far crews travel, which areas you barely cover, where demand is growing — stay hidden in a spreadsheet.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>Mapping puts clients, sites and jobs on a map anyone in the office can open. This one is optional — plenty of businesses never need it. If you do, it can be built with free open-source mapping, with Esri's ArcGIS, or with the drag-and-drop mapping already bundled in licences you hold. What matters is that it keeps working and stays easy to maintain after I hand it over.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.32s">
-          <h3>Skills and orchestration that compound</h3>
-          <p class="prob"><span class="tag tag-p">Today</span>Every tool is a separate destination. Staff jump between a dozen applications to finish one task, carrying context in their heads from one to the next, and any AI in the mix is a side trip rather than part of the work.</p>
-          <p class="sol"><span class="tag tag-s">Connected</span>Beyond connecting systems, an agent can be given <strong>skills</strong> — repeatable procedures for the specific jobs your organization does, written once and reused. Then <strong>orchestration</strong> lets agents, skills and existing automations hand work to one another, so a single request can pull the data, do the analysis, draft the output and update the records. It becomes a shared working environment that grows as you add skills, and the aim is simple: finish as much of the day inside it as possible instead of touring your software to get one thing done.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Skills and orchestration that compound</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">Today</span>Every tool is a separate destination. Staff jump between a dozen applications to finish one task, carrying context in their heads from one to the next, and any AI in the mix is a side trip rather than part of the work.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>Beyond connecting systems, AI agents use defined <strong>skills</strong> — repeatable procedures for your specific workflows. Structured <strong>orchestration</strong> connects agents, skills, and existing automations so work flows smoothly between them: one prompt can retrieve data, complete the processing, draft the output, and update target systems without switching between multiple applications.</p>
+            </div>
+          </div>
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.4s">
-          <h3>Dashboards, reports and project visibility</h3>
-          <p class="prob"><span class="tag tag-p">Today</span>Someone spends the first week of every month assembling a report by hand. Project status lives partly in a spreadsheet, partly in an inbox, and partly in one person's memory. By the time the figures are circulated they are old, and the decision has already been made without them.</p>
-          <p class="sol"><span class="tag tag-s">Connected</span>Live dashboards show what is actually happening — workload, response times, costs, which services are growing and where. Projects and tasks sit in one place the whole team can see, so nobody chases updates. Routine reports build and send themselves on a schedule, and the agent can summarise the trend in plain English instead of leaving you to read the chart.</p>
+          <button class="uc-head">
+            <span class="uc-title-text">Dashboards, reports and project visibility</span>
+            <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+          </button>
+          <div class="uc-body">
+            <div class="uc-body-inner">
+              <p class="prob"><span class="tag tag-p">Today</span>Someone spends the first week of every month assembling a report by hand. Project status lives partly in a spreadsheet, partly in an inbox, and partly in one person's memory. By the time the figures are circulated they are old, and the decision has already been made without them.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>Live dashboards show what is actually happening — workload, response times, costs, which services are growing and where. Projects and tasks sit in one place the whole team can see, so nobody chases updates. Routine reports build and send themselves on a schedule, and the agent can summarise the trend in plain English instead of leaving you to read the chart.</p>
+            </div>
+          </div>
         </article>
 
       </div>
@@ -1487,57 +2440,159 @@
     <canvas class="section-fx" id="fxFaq" aria-hidden="true"></canvas>
     <div class="wrap">
       <p class="kicker reveal">FAQ</p>
-      <h2 class="reveal">Common <span class="grad">questions</span>, eh?</h2>
+      <h2 class="reveal">Frequently asked <span class="grad">questions, eh?</span></h2>
 
       <div class="faq reveal">
-        <details>
-          <summary>What kinds of work can Power Automate actually automate?</summary>
-          <p class="ans">Far more than shuffling spreadsheet rows. Automation can watch the places work actually arrives — Outlook and shared mailboxes, voicemail and phone systems, Teams or Slack messages, web forms, scanned paperwork — and turn that messy incoming traffic into structured data. From there it triggers whatever should happen next: pull out the key details, categorize the request, assign it to the right person or team, raise the task or ticket, notify whoever needs to know, update the other systems that hold the same record, and escalate anything that misses a deadline. If someone is following the same steps every time, it is usually a candidate.</p>
-        </details>
-        <details>
-          <summary>How does AI help with manual data entry and extraction?</summary>
-          <p class="ans">AI document processing reads unstructured files — PDFs, scanned forms, invoices, emailed attachments — and returns structured fields you can store and query. Combined with an automated flow, a document that arrives by email can be read, validated and written into a database without anyone retyping it.</p>
-        </details>
-        <details>
-          <summary>Do we have to replace our existing systems?</summary>
-          <p class="ans">It genuinely depends, and it is a decision we make together. Often the answer is no — connecting what you already run is faster, more affordable and far less disruptive than replacing it, and it protects the investment you have already made. But sometimes a system really is holding you back. In that case I will tell you plainly which software or systems I would recommend replacing or migrating and why, then work through the evaluation with you — weighing cost, risk, disruption and what your team can realistically support. You make the final call with a clear picture rather than a sales pitch.</p>
-        </details>
-        <details>
-          <summary>Can automation work with our existing GIS?</summary>
-          <p class="ans">One hundred percent. ArcGIS Enterprise and ArcGIS Online both provide connections that automation can read from and write to. More importantly, tools like FME and Python let me work with far more than the map layer — I can pull attribute data from multiple systems and databases, join it to your spatial records, check it for errors, and push the results back out to wherever they are needed. Common examples include keeping asset layers in step with a maintenance system, or plotting incoming service requests on a map automatically.</p>
-        </details>
-        <details>
-          <summary>What is MCP, and why does it matter for AI at work?</summary>
-          <p class="ans">MCP (Model Context Protocol) is an open standard for connecting an AI agent to real systems and data, giving it controlled, permission-aware access to Microsoft 365, Google Workspace, ticketing systems, CRMs and databases. But MCP is only one piece. An agent also needs <strong>skills</strong> — repeatable procedures for the specific jobs your organization does — and <strong>orchestration</strong>, so agents, skills and your existing automations can pass work between them. Together those turn a general-purpose assistant into a working environment that grows with your business over time.</p>
-        </details>
-        <details>
-          <summary>Is it safe to let AI read our email and business systems?</summary>
-          <p class="ans">It can be, when access is scoped deliberately. Connections are configured to respect the permissions each user already has, limited to the systems you approve, and set to read-only wherever writing is not required. Actions that send or change something are kept behind human review. The right design question is not whether AI is allowed in, but exactly what it may see and what it may do.</p>
-        </details>
-        <details>
-          <summary>Do you only work with Microsoft and Esri products?</summary>
-          <p class="ans">No. Those come up often because so many organizations already pay for them, so using them costs nothing extra. But the right tool depends on what you already run and what you are trying to fix. I work with other automation platforms, other databases, open-source components and non-Esri mapping where those are the better fit. The goal is the outcome you need at a sensible cost, not loyalty to a particular vendor.</p>
-        </details>
-        <details>
-          <summary>Is mapping or GIS required to work with you?</summary>
-          <p class="ans">Not at all. Many projects are pure automation and integration with no map anywhere in sight. Mapping is offered because it is genuinely useful when your work has a geographic pattern — customers spread across a region, crews travelling between sites, assets in the field. If that is not your situation, we simply skip it.</p>
-        </details>
-        <details>
-          <summary>When is it better to replace a system than automate around it?</summary>
-          <p class="ans">When the system cannot be integrated, cannot be automated, and can no longer be supported. Clear signs include paper forms still being filled in by hand, a spreadsheet doing a database's job, software past its end of support, or a vendor who has refused for years to modernize or provide any way to connect. At that point the cost of working around it has usually already exceeded the cost of replacing it — and I will tell you when I think that line has been crossed.</p>
-        </details>
-        <details>
-          <summary>Should we use open-source or the enterprise tools we already license?</summary>
-          <p class="ans">Whichever is more affordable to own over the long term — and that is about much more than the sticker price. If your ArcGIS or Power Platform licences already cover the need, using them is usually the better answer: no new spend, no new vendor, and your staff may already know the tools. Where they do not fit, open-source components can do the job without a recurring fee. The deciding factors are risk, maintenance and continuity — who can support it in three years, how easily your own team can take it over, and what happens if a vendor changes direction or an open-source project loses its maintainers. I weigh those with you project by project rather than defaulting to a favourite.</p>
-        </details>
-        <details>
-          <summary>How much does workflow automation cost for a small organization?</summary>
-          <p class="ans">There are two different kinds of cost, and it helps to separate them. Automation and integration that does not involve AI can usually be scoped to a fixed price — the build is largely a one-off, and much of the capability may already be bundled in Microsoft 365 or Power Platform licences you hold, so the starting point is often lower than expected. AI is different. When a workflow sends documents or questions through an AI service, you pay for what you consume, more like a utility bill for water or electricity than a flat subscription. That is predictable once we measure your actual volumes, and I will estimate it before you commit rather than after the first invoice arrives.</p>
-        </details>
-        <details>
-          <summary>Where does Renospatial Solutions work?</summary>
-          <p class="ans">Renospatial Solutions is based in Parksville on Vancouver Island and works with organizations across British Columbia and Canada. Most engagements run remotely, with on-site work available on Vancouver Island.</p>
-        </details>
+        <div class="faq-controls">
+          <button class="btn-toggle-all" data-target="faqGrid">Expand all</button>
+        </div>
+        <div class="faq-grid" id="faqGrid">
+
+          <article class="uc faq-card">
+            <button class="uc-head">
+              <span class="uc-title-text">What kinds of work can Power Automate actually automate?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">Far more than shuffling spreadsheet rows. Automation can watch the places work actually arrives — Outlook and shared mailboxes, voicemail and phone systems, Teams or Slack messages, web forms, scanned paperwork — and turn that messy incoming traffic into structured data. From there it triggers whatever should happen next: pull out the key details, categorize the request, assign it to the right person or team, raise the task or ticket, notify whoever needs to know, update the other systems that hold the same record, and escalate anything that misses a deadline. If someone is following the same steps every time, it is usually a candidate.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.05s">
+            <button class="uc-head">
+              <span class="uc-title-text">How does AI help with manual data entry and extraction?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">AI document processing reads unstructured files — PDFs, scanned forms, invoices, emailed attachments — and returns structured fields you can store and query. Combined with an automated flow, a document that arrives by email can be read, validated and written into a database without anyone retyping it.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.1s">
+            <button class="uc-head">
+              <span class="uc-title-text">Do we have to replace our existing systems?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">It genuinely depends, and it is a decision we make together. Often the answer is no — connecting what you already run is faster, more affordable and far less disruptive than replacing it, and it protects the investment you have already made. But sometimes a system really is holding you back. In that case I will tell you plainly which software or systems I would recommend replacing or migrating and why, then work through the evaluation with you — weighing cost, risk, disruption and what your team can realistically support. You make the final call with a clear picture rather than a sales pitch.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.15s">
+            <button class="uc-head">
+              <span class="uc-title-text">Can automation work with our existing GIS?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">Yes. ArcGIS Enterprise and ArcGIS Online both provide connections that automation can read from and write to. More importantly, tools like FME and Python let me work with far more than the map layer — I can pull attribute data from multiple systems and databases, join it to your spatial records, check it for errors, and push the results back out to wherever they are needed. Common examples include keeping asset layers in step with a maintenance system, or plotting incoming service requests on a map automatically.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.2s">
+            <button class="uc-head">
+              <span class="uc-title-text">What is MCP, and why does it matter for AI at work?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">MCP (Model Context Protocol) is an open standard for connecting an AI agent to real systems and data, giving it controlled, permission-aware access to Microsoft 365, Google Workspace, ticketing systems, CRMs and databases. But MCP is only one piece. An agent also needs <strong>skills</strong> — repeatable procedures for the specific jobs your organization does — and <strong>orchestration</strong>, so agents, skills and your existing automations can pass work between them. Together those turn a general-purpose assistant into a working environment that grows with your business over time.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.25s">
+            <button class="uc-head">
+              <span class="uc-title-text">Is it safe to let AI read our email and business systems?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">It can be, when access is scoped deliberately. Connections are configured to respect the permissions each user already has, limited to the systems you approve, and set to read-only wherever writing is not required. Actions that send or change something are kept behind human review. The right design question is not whether AI is allowed in, but exactly what it may see and what it may do.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.3s">
+            <button class="uc-head">
+              <span class="uc-title-text">Do you only work with Microsoft and Esri products?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">No. Those come up often because so many organizations already pay for them, so using them costs nothing extra. But the right tool depends on what you already run and what you are trying to fix. I work with other automation platforms, other databases, open-source components and non-Esri mapping where those are the better fit. The goal is the outcome you need at a sensible cost, not loyalty to a particular vendor.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.35s">
+            <button class="uc-head">
+              <span class="uc-title-text">Is mapping or GIS required to work with you?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">Not at all. Many projects are pure automation and integration with no map anywhere in sight. Mapping is offered because it is genuinely useful when your work has a geographic pattern — customers spread across a region, crews travelling between sites, assets in the field. If that is not your situation, we simply skip it.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.4s">
+            <button class="uc-head">
+              <span class="uc-title-text">When is it better to replace a system than automate around it?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">When the system cannot be integrated, cannot be automated, and can no longer be supported. Clear signs include paper forms still being filled in by hand, a spreadsheet doing a database's job, software past its end of support, or a vendor who has refused for years to modernize or provide any way to connect. At that point the cost of working around it has usually already exceeded the cost of replacing it — and I will tell you when I think that line has been crossed.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.45s">
+            <button class="uc-head">
+              <span class="uc-title-text">Should we use open-source or the enterprise tools we already license?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">Whichever is more affordable to own over the long term — and that is about much more than the sticker price. If your ArcGIS or Power Platform licences already cover the need, using them is usually the better answer: no new spend, no new vendor, and your staff may already know the tools. Where they do not fit, open-source components can do the job without a recurring fee. The deciding factors are risk, maintenance and continuity — who can support it in three years, how easily your own team can take it over, and what happens if a vendor changes direction or an open-source project loses its maintainers. I weigh those with you project by project rather than defaulting to a favourite.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.5s">
+            <button class="uc-head">
+              <span class="uc-title-text">How much does workflow automation cost for a small organization?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">There are two different kinds of cost, and it helps to separate them. Automation and integration that does not involve AI can usually be scoped to a fixed price — the build is largely a one-off, and much of the capability may already be bundled in Microsoft 365 or Power Platform licences you hold, so the starting point is often lower than expected. AI is different. When a workflow sends documents or questions through an AI service, you pay for what you consume, more like a utility bill for water or electricity than a flat subscription. That is predictable once we measure your actual volumes, and I will estimate it before you commit rather than after the first invoice arrives.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="uc faq-card" style="--d: 0.55s">
+            <button class="uc-head">
+              <span class="uc-title-text">Where does Renospatial Solutions work?</span>
+              <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            </button>
+            <div class="uc-body">
+              <div class="uc-body-inner">
+                <p class="ans">Renospatial Solutions is based in Parksville on Vancouver Island and works with organizations across British Columbia and Canada. Most engagements run remotely, with on-site work available on Vancouver Island.</p>
+              </div>
+            </div>
+          </article>
+
+        </div>
       </div>
     </div>
   </section>
@@ -1562,18 +2617,39 @@
         </div>
         <div class="contact-panel reveal" style="--d: 0.15s">
           <div class="row">
+            <div class="contact-ico-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="contact-ico ico-loc" aria-hidden="true">
+                <circle class="pin-radar" cx="12" cy="19" r="4" stroke="#f0c55e" stroke-width="1.2" fill="none"/>
+                <path class="pin-head" d="M12 2 C8.1 2 5 5.1 5 9 C5 14.2 12 21 12 21 C12 21 19 14.2 19 9 C19 5.1 15.9 2 12 2 Z" stroke="#6fa3e8" stroke-width="1.8" fill="rgba(111, 163, 232, 0.15)"/>
+                <circle class="pin-dot" cx="12" cy="9" r="2.2" fill="#f0c55e"/>
+              </svg>
+            </div>
             <div>
               <span class="label">Location</span>
               Parksville, British Columbia, Canada
             </div>
           </div>
           <div class="row">
+            <div class="contact-ico-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="contact-ico ico-email" aria-hidden="true">
+                <rect class="env-body" x="3" y="6" width="18" height="13" rx="2" stroke="#6fa3e8" stroke-width="1.8" fill="rgba(18, 34, 56, 0.7)"/>
+                <path class="env-flap" d="M3 7 L12 13 L21 7" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle class="mail-spark" cx="12" cy="10" r="1.5" fill="#ffffff"/>
+              </svg>
+            </div>
             <div>
               <span class="label">Email</span>
               <a href="mailto:rsun@renospatial.com">rsun@renospatial.com</a>
             </div>
           </div>
           <div class="row">
+            <div class="contact-ico-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="contact-ico ico-li" aria-hidden="true">
+                <rect class="li-bg" x="2" y="2" width="20" height="20" rx="4" stroke="#6fa3e8" stroke-width="1.8" fill="rgba(111, 163, 232, 0.12)"/>
+                <path class="li-in" d="M7 10 V17 M7 7.5 V7.6 M11 17 V10.5 C11 9 12.2 8 13.8 8 C15.4 8 16.5 9 16.5 10.5 V17" stroke="#f0c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle class="li-node" cx="17.5" cy="6.5" r="2" fill="#6fa3e8" stroke="#f0c55e" stroke-width="1"/>
+              </svg>
+            </div>
             <div>
               <span class="label">LinkedIn</span>
               <a href="https://www.linkedin.com/company/renospatial" target="_blank" rel="noopener">linkedin.com/company/renospatial<span class="sr-only"> (opens in a new window)</span></a>
@@ -1582,8 +2658,6 @@
         </div>
       </div>
     </div>
-  </section>
-
 </main>
 
 <footer>
@@ -1727,6 +2801,145 @@
       });
     });
   }
+
+  /* ---------- Collapsible Cards for Use Cases, AI & FAQ ---------- */
+  function initCollapsibleCards() {
+    var ucCards = document.querySelectorAll(".uc");
+    var isMobile = window.innerWidth <= 768;
+
+    ucCards.forEach(function (card) {
+      var head = card.querySelector(".uc-head");
+      if (!head) return;
+      var isFaq = card.classList.contains("faq-card");
+
+      if (isMobile || isFaq) {
+        head.setAttribute("role", "button");
+        head.setAttribute("tabindex", "0");
+        head.setAttribute("aria-expanded", card.classList.contains("is-open") ? "true" : "false");
+      } else {
+        head.removeAttribute("role");
+        head.removeAttribute("tabindex");
+        head.removeAttribute("aria-expanded");
+        card.classList.remove("is-open");
+      }
+    });
+  }
+
+  document.querySelectorAll(".uc").forEach(function (card) {
+    var head = card.querySelector(".uc-head");
+    if (!head) return;
+    var isFaq = card.classList.contains("faq-card");
+
+    function toggleCard() {
+      if (window.innerWidth <= 768 || isFaq) {
+        var isOpen = card.classList.toggle("is-open");
+        head.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      }
+    }
+
+    head.addEventListener("click", toggleCard);
+    head.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleCard();
+      }
+    });
+  });
+
+  // Expand / Collapse all controls
+  document.querySelectorAll(".btn-toggle-all").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var targetId = btn.getAttribute("data-target");
+      var container = document.getElementById(targetId);
+      if (!container) return;
+      var cards = container.querySelectorAll(".uc");
+      var anyClosed = Array.from(cards).some(function (c) { return !c.classList.contains("is-open"); });
+
+      cards.forEach(function (card) {
+        var head = card.querySelector(".uc-head");
+        if (anyClosed) {
+          card.classList.add("is-open");
+          if (head) head.setAttribute("aria-expanded", "true");
+        } else {
+          card.classList.remove("is-open");
+          if (head) head.setAttribute("aria-expanded", "false");
+        }
+      });
+      btn.textContent = anyClosed ? "Collapse all" : "Expand all";
+    });
+  });
+
+  window.addEventListener("resize", initCollapsibleCards);
+  initCollapsibleCards();
+
+  /* ---------- Scroll-spy: Highlight active nav link on scroll ---------- */
+  var navLinks = document.querySelectorAll("nav a[href^='#']");
+  var sectionIds = Array.from(navLinks).map(function (link) {
+    return link.getAttribute("href").substring(1);
+  }).filter(Boolean);
+
+  var sections = sectionIds.map(function (id) {
+    return document.getElementById(id);
+  }).filter(Boolean);
+
+  function updateActiveNav() {
+    var scrollPos = window.scrollY + 180;
+    if (window.scrollY < 180) {
+      navLinks.forEach(function (link) {
+        link.classList.remove("active");
+        link.removeAttribute("aria-current");
+      });
+      return;
+    }
+
+    var currentId = "";
+    sections.forEach(function (sec) {
+      var top = sec.offsetTop;
+      var height = sec.offsetHeight;
+      if (scrollPos >= top && scrollPos < top + height) {
+        currentId = sec.getAttribute("id");
+      }
+    });
+
+    if (currentId) {
+      navLinks.forEach(function (link) {
+        var isCurrent = link.getAttribute("href") === "#" + currentId;
+        link.classList.toggle("active", isCurrent);
+        if (isCurrent) {
+          link.setAttribute("aria-current", "page");
+        } else if (link.getAttribute("aria-current") === "page") {
+          link.removeAttribute("aria-current");
+        }
+      });
+    }
+  }
+
+  if ("IntersectionObserver" in window && sections.length) {
+    var activeObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.getAttribute("id");
+          navLinks.forEach(function (link) {
+            var isCurrent = link.getAttribute("href") === "#" + id;
+            link.classList.toggle("active", isCurrent);
+            if (isCurrent) {
+              link.setAttribute("aria-current", "page");
+            } else if (link.getAttribute("aria-current") === "page") {
+              link.removeAttribute("aria-current");
+            }
+          });
+        }
+      });
+    }, {
+      rootMargin: "-5% 0px -30% 0px",
+      threshold: 0.05
+    });
+
+    sections.forEach(function (sec) { activeObserver.observe(sec); });
+  }
+
+  window.addEventListener("scroll", updateActiveNav, { passive: true });
+  updateActiveNav();
 
   /* =====================================================================
      Particle field — one instance per section:
@@ -2003,28 +3216,28 @@
         }
       }
     } else if (pattern === "galaxy") {
-      // differential rotation, tilted-disk projection, layered depth
-      p.gang += 0.55 / (p.grad + 40);
+      // Differential rotation, tilted-disk projection, vibrant core & spiral arms
+      p.gang += 0.85 / (p.grad + 35);
       p.gox *= 0.96;
       p.goy *= 0.96;
       var gex = Math.cos(p.gang) * p.grad;
       var gey = Math.sin(p.gang) * p.grad * p.gflat;
       p.x = w / 2 + gex * 0.94 + gey * 0.34 + p.gox;
       p.y = h / 2 - gex * 0.34 + gey * 0.94 + p.goy;
-      // near side of the disk reads brighter and larger than the far side
+      // Near side of disk reads much brighter with high contrast
       var dep = 0.5 + 0.5 * Math.sin(p.gang);
-      if (p.tier === 0) {          // bulge: dense glowing core
-        p.fire = 0.34 + 0.3 * dep;
+      if (p.tier === 0) {          // Core Bulge: Intensely glowing core
+        p.fire = 0.75 + 0.25 * dep;
         p.dim = 0;
-      } else if (p.tier === 1) {   // spiral arms
-        p.fire = 0.1 + 0.32 * dep;
-        p.dim = 0.18 * (1 - dep);
-      } else if (p.tier === 2) {   // faint field between the arms
-        p.fire = 0;
-        p.dim = 0.45 - 0.2 * dep;
-      } else {                     // distant halo stars
-        p.fire = 0;
-        p.dim = 0.58 - 0.12 * dep;
+      } else if (p.tier === 1) {   // Spiral Arms: Vibrant glowing stars
+        p.fire = 0.45 + 0.45 * dep;
+        p.dim = 0.08 * (1 - dep);
+      } else if (p.tier === 2) {   // Inter-arm field
+        p.fire = 0.22;
+        p.dim = 0.2 - 0.1 * dep;
+      } else {                     // Outer Halo Stars
+        p.fire = 0.12;
+        p.dim = 0.25 - 0.1 * dep;
       }
     } else if (pattern === "roads") {
       // city-grid traffic: drive the street, sometimes turn at intersections
@@ -2100,36 +3313,36 @@
       p.x += (tx - p.x) * 0.12 + Math.sin(now / 900 + p.wob) * 0.3;
       p.y += (ty - p.y) * 0.12 + Math.cos(now / 1050 + p.wob) * 0.3;
       p.fire = p.qgold ? 0.55 : 0.05;
-    } else { // hole: accretion flow streaming into the horizon
+    } else { // hole: Interstellar-style black hole with glowing accretion disk & lensing
       var cx = w / 2, cy = h / 2;
       p.lx = p.x;
       p.ly = p.y;
       p.hox *= 0.95;
       p.hoy *= 0.95;
       if (p.halo) {
-        p.hang += p.hw;
+        p.hang += p.hw * 1.25;
         p.x = cx + Math.cos(p.hang) * p.hrad + p.hox;
         p.y = cy + Math.sin(p.hang) * p.hrad + p.hoy;
-        p.fire = 0.45;   // lensed light ring glows
+        p.fire = 0.65;   // lensed light ring glows intensely
       } else {
         p.trail = true;
-        p.hang += 13 / Math.pow(p.hrad, 1.45);   // Keplerian whip
-        // gravity: the plunge accelerates sharply near the horizon
-        p.hrad -= 0.2 + 70 / Math.max(p.hrad - p.core * 0.7, 12);
+        p.hang += 16 / Math.pow(p.hrad, 1.4);   // Smooth Keplerian whip rotation
+        // gravity: smooth acceleration toward event horizon
+        p.hrad -= 0.18 + 75 / Math.max(p.hrad - p.core * 0.7, 10);
         var reborn = false;
         if (p.hrad < p.core * 1.02) {
           // swallowed -> new matter falls in from far outside
-          p.hrad = Math.min(w, h) * (0.28 + Math.random() * 0.3);
+          p.hrad = Math.min(w, h) * (0.28 + Math.random() * 0.32);
           p.hang = Math.random() * Math.PI * 2;
           p.hox = 0;
           p.hoy = 0;
           reborn = true;
         }
         p.x = cx + Math.cos(p.hang) * p.hrad + p.hox;
-        p.y = cy + Math.sin(p.hang) * p.hrad * 0.28 + p.hoff + p.hoy;
-        if (reborn) { p.lx = p.x; p.ly = p.y; }   // no streak across the jump
-        // hotter closer in; fades away as it crosses the photon ring
-        p.fire = Math.max(0, (p.core * 3.5 - p.hrad) / (p.core * 3.5)) * 0.9;
+        p.y = cy + Math.sin(p.hang) * p.hrad * 0.3 + p.hoff + p.hoy;
+        if (reborn) { p.lx = p.x; p.ly = p.y; }
+        // Hot glowing accretion disk
+        p.fire = Math.max(0, (p.core * 3.8 - p.hrad) / (p.core * 3.8)) * 0.95;
         p.dim = p.hrad < p.core * 1.7
           ? Math.min(1, (p.core * 1.7 - p.hrad) / (p.core * 0.68))
           : 0;
@@ -2266,36 +3479,136 @@
   /* Draw the street grid itself, tracing the same curves the vehicles
      drive along, so the field reads as an actual map. Every third
      street is a highway: thicker and gold. */
-  function drawRoads(w, h) {
-    var si, x, y, lane, amp, hiway;
+  /* Draw a realistic city vector map: urban blocks, grid streets,
+     circumferential bypass expressways, and glowing intersection hubs. */
+  function drawRoads(w, h, now) {
+    var si, sj, x, y, lane, amp, hiway;
+    var sx = w / roadGX, sy = h / roadGY;
 
-    for (si = 0; si < roadGY; si++) {            // east-west streets
-      lane = (si + 0.5) * h / roadGY;
-      amp = 18 + (si % 3) * 10;
+    // 1. City Blocks / Urban District Footprints
+    ctx.fillStyle = "rgba(18, 34, 56, 0.35)";
+    ctx.strokeStyle = "rgba(111, 163, 232, 0.08)";
+    ctx.lineWidth = 1;
+    for (si = 0; si < roadGX; si++) {
+      for (sj = 0; sj < roadGY; sj++) {
+        var bx = (si + 0.15) * sx;
+        var by = (sj + 0.15) * sy;
+        var bw = sx * 0.7;
+        var bh = sy * 0.7;
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeRect(bx, by, bw, bh);
+      }
+    }
+
+    // 2. Circumferential Bypass Expressway (Outer Ring Highway)
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.5, w * 0.42, h * 0.38, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(240, 197, 94, 0.25)";
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.5, w * 0.42, h * 0.38, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(240, 197, 94, 0.45)";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([8, 12]);
+    ctx.lineDashOffset = -now * 0.03;
+    ctx.stroke();
+    ctx.setLineDash([]); // Reset line dash
+
+    // 3. Grid Streets (East-West Streets)
+    for (si = 0; si < roadGY; si++) {
+      lane = (si + 0.5) * sy;
+      amp = 14 + (si % 3) * 8;
       hiway = si % 3 === 0;
       ctx.beginPath();
-      for (x = 0; x <= w + 8; x += 8) {
-        y = lane + Math.sin(x * 0.006 + si * 2.3) * amp;
+      for (x = 0; x <= w + 8; x += 12) {
+        y = lane + Math.sin(x * 0.005 + si * 2.3) * amp;
         if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = hiway ? "rgba(240,197,94,0.20)" : "rgba(111,163,232,0.15)";
-      ctx.lineWidth = hiway ? 3.2 : 1.4;
+      ctx.strokeStyle = hiway ? "rgba(240, 197, 94, 0.28)" : "rgba(111, 163, 232, 0.16)";
+      ctx.lineWidth = hiway ? 3.0 : 1.4;
       ctx.stroke();
     }
 
-    for (si = 0; si < roadGX; si++) {            // north-south streets
-      lane = (si + 0.5) * w / roadGX;
-      amp = 18 + (si % 3) * 10;
+    // 4. Grid Streets (North-South Avenues)
+    for (si = 0; si < roadGX; si++) {
+      lane = (si + 0.5) * sx;
+      amp = 14 + (si % 3) * 8;
       hiway = si % 3 === 0;
       ctx.beginPath();
-      for (y = 0; y <= h + 8; y += 8) {
-        x = lane + Math.sin(y * 0.006 + si * 1.9) * amp;
+      for (y = 0; y <= h + 8; y += 12) {
+        x = lane + Math.sin(y * 0.005 + si * 1.9) * amp;
         if (y === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = hiway ? "rgba(240,197,94,0.20)" : "rgba(111,163,232,0.15)";
-      ctx.lineWidth = hiway ? 3.2 : 1.4;
+      ctx.strokeStyle = hiway ? "rgba(240, 197, 94, 0.28)" : "rgba(111, 163, 232, 0.16)";
+      ctx.lineWidth = hiway ? 3.0 : 1.4;
       ctx.stroke();
     }
+
+    // 5. Glowing Intersections & Transportation Hub Nodes
+    for (si = 0; si < roadGX; si++) {
+      for (sj = 0; sj < roadGY; sj++) {
+        var ix = (si + 0.5) * sx;
+        var iy = (sj + 0.5) * sy;
+        var isHub = (si + sj) % 3 === 0;
+
+        ctx.beginPath();
+        ctx.arc(ix, iy, isHub ? 4 : 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = isHub ? "rgba(240, 197, 94, 0.85)" : "rgba(111, 163, 232, 0.6)";
+        ctx.fill();
+
+        if (isHub) {
+          var pulseR = 5 + Math.sin(now * 0.004 + si * 1.5 + sj) * 3.5;
+          ctx.beginPath();
+          ctx.arc(ix, iy, pulseR, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(240, 197, 94, 0.35)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  /* Draw a prominent Milky Way Galaxy background: glowing galactic core
+     bulge radial gradient and rotating spiral arm dust lanes. */
+  function drawGalaxyBackground(w, h, now) {
+    var gcx = w / 2;
+    var gcy = h / 2;
+    var maxR = Math.min(w, h) * 0.48;
+
+    // 1. Intense Galactic Core Bulge Radial Glow
+    var coreGlow = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxR * 0.68);
+    coreGlow.addColorStop(0, "rgba(240, 197, 94, 0.48)");
+    coreGlow.addColorStop(0.22, "rgba(111, 163, 232, 0.32)");
+    coreGlow.addColorStop(0.58, "rgba(240, 197, 94, 0.10)");
+    coreGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = coreGlow;
+    ctx.beginPath();
+    ctx.arc(gcx, gcy, maxR * 0.68, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. Rotating Lensed Spiral Arm Dust Lanes
+    var spinAngle = now * 0.00018;
+    ctx.save();
+    ctx.translate(gcx, gcy);
+    ctx.rotate(spinAngle);
+
+    // Spiral Arm A (Gold)
+    ctx.beginPath();
+    ctx.ellipse(0, 0, maxR * 0.88, maxR * 0.38, -0.4, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(240, 197, 94, 0.26)";
+    ctx.lineWidth = 4.5;
+    ctx.stroke();
+
+    // Spiral Arm B (Blue)
+    ctx.beginPath();
+    ctx.ellipse(0, 0, maxR * 0.88, maxR * 0.38, 0.4, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(111, 163, 232, 0.26)";
+    ctx.lineWidth = 4.5;
+    ctx.stroke();
+
+    ctx.restore();
   }
 
   function frame(now) {
@@ -2303,8 +3616,9 @@
     var h = host.clientHeight;
     ctx.clearRect(0, 0, w, h);
 
-    /* ---- street network, drawn under the traffic ---- */
-    if (pattern === "roads" && mode === "drift") drawRoads(w, h);
+    /* ---- galaxy background underlay & street network ---- */
+    if (pattern === "galaxy") drawGalaxyBackground(w, h, now);
+    if (pattern === "roads" && mode === "drift") drawRoads(w, h, now);
 
     /* ---- state transitions (logo morph runs on the hero only) ---- */
     if (cfg.morph) {
@@ -2342,19 +3656,21 @@
       if (mode === "drift" || !t) {
         patternStep(p, i, w, h, now);
       } else if (mode === "form") {
-        // staggered departure: keep dancing until this particle's turn
-        var q = (formProgress - p.delay) / (1 - p.delay);
-        if (q <= 0) {
+        // Smooth staggered departure: cubic smoothstep easing for silky-smooth transition
+        var rawQ = (formProgress - p.delay) / (1 - p.delay);
+        if (rawQ <= 0) {
           patternStep(p, i, w, h, now);
         } else {
-          if (q > 1) q = 1;
-          // vortex: the whole field swirls around the logo centre while
-          // being drawn in, like water spiralling down into the mark
+          var q = Math.min(Math.max(rawQ, 0), 1);
+          var easeQ = q * q * (3 - 2 * q); // Smooth cubic ease-in-out transition
+
           var dx2 = t.x - p.x, dy2 = t.y - p.y;
-          var pull = 0.045 + 0.14 * q * q;
-          var lcx = logoPlace.ox + 150 * logoPlace.scale;
-          var lcy = logoPlace.oy + 150 * logoPlace.scale;
-          var sw = 0.022 * p.curve * (1 - q);
+          var pull = 0.04 + 0.12 * easeQ;
+          var lcx = logoPlace ? (logoPlace.ox + 150 * logoPlace.scale) : (w / 2);
+          var lcy = logoPlace ? (logoPlace.oy + 150 * logoPlace.scale) : (h / 2);
+
+          // Vortex swirl smoothly dampens as particle locks onto logo target
+          var sw = 0.025 * p.curve * (1 - easeQ);
           p.x += dx2 * pull - (p.y - lcy) * sw;
           p.y += dy2 * pull + (p.x - lcx) * sw;
         }
@@ -2371,10 +3687,10 @@
       }
     }
 
-    /* ---- crisp logo underlay: fades in as particles settle ---- */
+    /* ---- crisp logo underlay: fades in seamlessly as particles settle ---- */
     var logoAlphaTarget =
-      (mode === "hold" || (mode === "form" && formProgress > 0.55)) ? 0.55 : 0;
-    logoAlpha += (logoAlphaTarget - logoAlpha) * 0.055;
+      (mode === "hold" || (mode === "form" && formProgress > 0.35)) ? 0.65 : 0;
+    logoAlpha += (logoAlphaTarget - logoAlpha) * 0.065;
     if (logoAlpha > 0.01 && logoPlace) {
       var lcx = logoPlace.ox + 150 * logoPlace.scale;
       var lcy = logoPlace.oy + 150 * logoPlace.scale;
