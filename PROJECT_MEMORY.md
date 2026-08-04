@@ -65,9 +65,21 @@ with 12 questions), `robots.txt`, `sitemap.xml`.
 
 Ranked by likely value:
 
-1. **Verify the canonical URL** before/at launch. Hardcoded to
-   `https://renospatial.com/`. If Cloudflare serves from a `*.pages.dev`
-   origin, this is actively harmful. *(Flagged repeatedly, still unresolved.)*
+1. **⚠️ Cloudflare is overriding `robots.txt` and blocking AI crawlers.**
+   The file served at `https://renospatial.com/robots.txt` is *not* the one in
+   this repo. Cloudflare prepends its own managed block list, so the live file
+   says `Disallow: /` for GPTBot, ClaudeBot, Google-Extended and
+   Applebot-Extended **and then** repeats them as `Allow: /` from our file.
+   Contradictory, and the safe reading is that they are blocked — which
+   defeats the GEO work. Also sets `Content-Signal: ai-train=no`.
+   **Fix in the Cloudflare dashboard** (Security → Bots → AI Scrapers and
+   Crawlers / AI Crawl Control, plus the managed robots.txt / Content Signals
+   setting), not in this repo. Editing `robots.txt` here will not help.
+   *Business call:* blocking `ai-train` while allowing `ai-input` is
+   reasonable — do not train on my content, but do cite me. The current
+   config blocks citation too.
+2. ~~Verify the canonical URL~~ ✅ **Resolved 2026-08-03.** Site is live at
+   `https://renospatial.com/` and the canonical matches the serving origin.
 2. **Credibility signals are thin.** No named founder in the copy, no `Person`
    schema, no case studies, no testimonials, no phone number, only one `sameAs`.
    The **MISA BC award** the owner holds is not mentioned anywhere — that is the
@@ -94,6 +106,15 @@ is deployed at the correct canonical URL and submitted for indexing.
 ## Changelog
 
 Newest first. Add an entry when you finish work.
+
+### 2026-08-03 — Claude Code (post-launch verification)
+- Site went live at `https://renospatial.com/`. Verified on the production URL:
+  HTTP 200, new title, canonical correct, both JSON-LD blocks present, 26 `<h3>`
+  card titles, 12 FAQ questions, 5 section canvases, `sitemap.xml` and
+  `logo-1024.png` all served.
+- **Found:** Cloudflare replaces our `robots.txt` with a managed one that
+  blocks GPTBot / ClaudeBot / Google-Extended / Applebot-Extended. Logged under
+  Known gaps #1 — must be fixed in the Cloudflare dashboard, not this repo.
 
 ### 2026-08-03 — Claude Code
 - Stripped hedge padding from all copy: `genuinely` 5→0, `simply` 3→0,
