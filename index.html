@@ -709,7 +709,12 @@
     position: relative;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.6rem;
+    /* min-width wide enough for the longest label ("Workflow Automation")
+       so shorter labels like "Enterprise GIS" don't shrink the pill and
+       cause the surrounding layout to jump on rotation. */
+    min-width: 16rem;
     background: rgba(18, 34, 56, 0.85);
     border-radius: 999px;
     padding: 0.45rem 1.25rem;
@@ -896,7 +901,14 @@
       margin-left: auto;
       margin-right: auto;
     }
-    .rotator-line,
+    /* Stack "Specializing in" above the badge pill on narrow screens so
+       it is always two predictable lines instead of sometimes one,
+       sometimes two depending on which service name is showing. */
+    .rotator-line {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
     .hero-ctas {
       justify-content: center;
       text-align: center;
