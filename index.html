@@ -119,11 +119,11 @@
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "What kinds of work can Power Automate actually automate?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Far more than shuffling spreadsheet rows. Automation can watch the places work actually arrives - Outlook and shared mailboxes, voicemail and phone systems, Teams or Slack messages, web forms, scanned paperwork - and turn that messy incoming traffic into structured data. From there it triggers whatever should happen next: pull out the key details, categorize the request, assign it to the right person or team, raise the task or ticket, notify whoever needs to know, update the other systems that hold the same record, and escalate anything that misses a deadline." } },
+      "acceptedAnswer": { "@type": "Answer", "text": "Far more than shuffling spreadsheet rows. Automation can watch the places work arrives - Outlook and shared mailboxes, voicemail and phone systems, Teams or Slack messages, web forms, scanned paperwork - and turn that messy incoming traffic into structured data. From there it triggers whatever should happen next: pull out the key details, categorize the request, assign it to the right person or team, raise the task or ticket, notify whoever needs to know, update the other systems that hold the same record, and escalate anything that misses a deadline." } },
     { "@type": "Question", "name": "How does AI help with manual data entry and extraction?",
       "acceptedAnswer": { "@type": "Answer", "text": "AI document processing reads unstructured files such as PDFs, scanned forms, invoices and emailed attachments, and returns structured fields you can store and query. Combined with an automated flow, a document that arrives by email can be read, validated and written into a database without anyone retyping it." } },
     { "@type": "Question", "name": "Do we have to replace our existing systems?",
-      "acceptedAnswer": { "@type": "Answer", "text": "It depends, and it is a decision made together. Often the answer is no - connecting what you already run is faster, more affordable and far less disruptive than replacing it. But sometimes a system really is holding you back. In that case I will say plainly which software or systems I would recommend replacing or migrating and why, then work through the evaluation with you, weighing cost, risk, disruption and what your team can realistically support." } },
+      "acceptedAnswer": { "@type": "Answer", "text": "It depends, and it is a decision made together. Often the answer is no - connecting what you already run is faster, more affordable and far less disruptive than replacing it. But sometimes a system is holding you back. In that case I will say plainly which software or systems I would recommend replacing or migrating and why, then work through the evaluation with you, weighing cost, risk, disruption and what your team can realistically support." } },
     { "@type": "Question", "name": "Can automation work with our existing GIS?",
       "acceptedAnswer": { "@type": "Answer", "text": "One hundred percent. ArcGIS Enterprise and ArcGIS Online both provide connections that automation can read from and write to. More importantly, tools like FME and Python work with far more than the map layer: attribute data can be pulled from multiple systems and databases, joined to your spatial records, checked for errors, and pushed back out wherever it is needed. Common examples include keeping asset layers in step with a maintenance system, or plotting incoming service requests on a map automatically." } },
     { "@type": "Question", "name": "What is MCP, and why does it matter for AI at work?",
@@ -1053,6 +1053,16 @@
     transition: color 0.3s ease, text-shadow 0.3s ease;
   }
 
+  /* The card title is <h3><button><span>. The h3 exists for the document
+     outline only — screen readers and search engines navigate by heading,
+     and a bare <span> gave them nothing. The inner span keeps the styling,
+     so the wrapper inherits and adds no box of its own. */
+  .uc .uc-title {
+    margin: 0;
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
   .uc:hover h3,
   .uc:hover .uc-title-text {
     color: #ffffff;
@@ -1123,6 +1133,15 @@
     font-family: inherit;
     color: inherit;
     padding: 0;
+    cursor: default;
+  }
+
+  /* Disabled on desktop, where the card does not collapse. The browser
+     would grey it out and it is a heading, not a dead action — so keep
+     it looking exactly like text. */
+  .uc-head:disabled {
+    opacity: 1;
+    color: inherit;
     cursor: default;
   }
 
@@ -2038,7 +2057,7 @@
       <span class="chip"><span class="dot"></span>Workflow Automation &bull; Systems Integration &bull; AI Adoption</span>
       <h1>Renospatial <span class="grad">Solutions</span></h1>
       <p class="rotator-line"><span aria-hidden="true">Built for&nbsp;<span id="rotator">Innovation</span></span><span class="sr-only">Built for Innovation, Automation, and Integration</span></p>
-      <p class="lede">Less manual work. Fewer things typed twice. Systems that finally talk to each other — built on the software your organization already pays for, with AI added where it genuinely earns its place.</p>
+      <p class="lede">Less manual work. Fewer things typed twice. Systems that finally talk to each other — built on the software your organization already pays for, with AI added where it earns its place.</p>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="#about">Learn More</a>
         <a class="btn btn-ghost" href="#contact">Contact</a>
@@ -2234,7 +2253,7 @@
               </div>
               <span class="flow-tagline">Phase 4: ROI Scoping</span>
               <h4>Build only what pays back</h4>
-              <p>Every proposal comes with an honest view of effort against return. If a feature will not repay the work, I will tell you before building it.</p>
+              <p>Every proposal sets out the effort against the return. If a feature will not repay the work, I will tell you before building it.</p>
             </div>
 
             <!-- Step 5 -->
@@ -2294,7 +2313,7 @@
     <div class="wrap">
       <p class="kicker reveal">Use Cases</p>
       <h2 class="reveal">Problems <span class="grad">worth automating</span></h2>
-      <p class="section-lede reveal">Most organizations lose hours every week to work a computer should be doing. These are the patterns that come up again and again — and what modern automation, AI and GIS actually do about them.</p>
+      <p class="section-lede reveal">Most organizations lose hours every week to work a computer should be doing. These are the patterns that come up again and again — and what modern automation, AI and GIS do about them.</p>
 
       <div class="mobile-uc-controls">
         <button class="btn-toggle-all" data-target="ucGrid">Expand all</button>
@@ -2302,10 +2321,10 @@
       <div class="uc-grid" id="ucGrid">
 
         <article class="uc reveal">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Manual data entry and re-keying</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Staff type the same information into several systems — a permit into a spreadsheet, an invoice into finance, field notes into the GIS. It is slow, it introduces typos, and the versions drift apart.</p>
@@ -2315,10 +2334,10 @@
         </article>
 
         <article class="uc reveal" style="--d: 0.08s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Data locked inside documents</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Critical information sits in PDFs, scanned drawings, emailed forms and attachments that nobody has time to transcribe — so it never reaches a database where it can be reported on.</p>
@@ -2328,10 +2347,10 @@
         </article>
 
         <article class="uc reveal" style="--d: 0.16s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Sorting, categorizing and routing</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Service requests, emails and reports are triaged by hand. It is inconsistent, it slows response times, and the knowledge often lives with one person.</p>
@@ -2341,10 +2360,10 @@
         </article>
 
         <article class="uc reveal" style="--d: 0.24s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Reporting and communication silos</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Each team keeps its own version of the truth in disconnected systems and private spreadsheets, and nobody is confident which number is current. Status travels by email chains, chased phone calls and standing meetings that exist only because there is nowhere to look it up.</p>
@@ -2354,10 +2373,10 @@
         </article>
 
         <article class="uc reveal" style="--d: 0.32s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Technology you already pay for, unused</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Microsoft 365, Power Platform and ArcGIS licences routinely include capability that was never switched on. Organizations buy new tools to solve problems their existing stack already covers.</p>
@@ -2367,23 +2386,23 @@
         </article>
 
         <article class="uc reveal" style="--d: 0.4s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Not knowing what is cost-effective to adopt</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
-              <p class="prob"><span class="tag tag-p">The problem</span>The vendor landscape is overwhelming and every product claims to do everything. It is hard for a small team to judge what genuinely fits their budget and capacity.</p>
-              <p class="sol"><span class="tag tag-s">What solves it</span>Vendor-neutral advice on right-sized tools, with honest estimates of licence cost, integration effort and how long it takes to pay back.</p>
+              <p class="prob"><span class="tag tag-p">The problem</span>The vendor landscape is overwhelming and every product claims to do everything. It is hard for a small team to judge what fits their budget and capacity.</p>
+              <p class="sol"><span class="tag tag-s">What solves it</span>Vendor-neutral advice on right-sized tools, with realistic estimates of licence cost, integration effort and how long it takes to pay back.</p>
             </div>
           </div>
         </article>
 
         <article class="uc reveal" style="--d: 0.48s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Legacy systems that should be retired</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Paper forms still being filled in by hand. A spreadsheet doing the job of a database. Software that lost vendor support years ago, or a product whose vendor has refused to modernize for your needs and offers no way to integrate or automate. That is usually the clearest sign a system has outlived its usefulness — it quietly caps what everyone around it can do.</p>
@@ -2393,10 +2412,10 @@
         </article>
 
         <article class="uc reveal" style="--d: 0.56s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Field inventory and inspections</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">The problem</span>Crews write findings on paper sheets or thumb long forms into phones in bad weather. Information gets retyped at the office, photos live unsaved on camera rolls, and inspection records remain incomplete.</p>
@@ -2415,7 +2434,7 @@
     <div class="wrap">
       <p class="kicker reveal">AI Adoption</p>
       <h2 class="reveal">An AI agent that <span class="grad">does the work</span></h2>
-      <p class="section-lede reveal">An AI agent that cannot reach your systems can only offer general advice. What makes one genuinely useful is everything you connect to it: secure access to the software you already run, skills built for the jobs your organization actually does, and orchestration so agents, skills and automations can hand work to one another. Built properly it becomes a shared workspace that grows with you — where most of the day's work gets finished without leaving it.</p>
+      <p class="section-lede reveal">An AI agent that cannot reach your systems can only offer general advice. What makes one useful is everything you connect to it: secure access to the software you already run, skills built for the jobs your organization does, and orchestration so agents, skills and automations can hand work to one another. Built properly it becomes a shared workspace that grows with you — where most of the day's work gets finished without leaving it.</p>
 
       <div class="mobile-uc-controls">
         <button class="btn-toggle-all" data-target="aiGrid">Expand all</button>
@@ -2423,10 +2442,10 @@
       <div class="uc-grid" id="aiGrid">
 
         <article class="uc uc-ai reveal">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">An agent that can see your workplace</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">Today</span>Answers live scattered across Outlook, Teams, SharePoint or Gmail, Chat and Drive. Finding what was agreed with a client three months ago means searching three applications and hoping you recall the right keyword.</p>
@@ -2436,23 +2455,23 @@
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.08s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Chat with your business data</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">Today</span>Getting a number out of your everyday systems — the ticket system, customer records, finance, the asset register — means requesting a report, waiting for the one person who can write it, and receiving a spreadsheet that is already out of date.</p>
-              <p class="sol"><span class="tag tag-s">Connected</span>The agent is connected directly to those systems, so staff simply ask a question and get an answer from live information. No technical skills needed, no report queue, no waiting.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>The agent is connected directly to those systems, so staff ask a question and get an answer from live information. No technical skills needed, no report queue, no waiting.</p>
             </div>
           </div>
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.16s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Draft and resolve, not just search</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">Today</span>Every service ticket is read, researched and answered from scratch, even when it is the same question your team answered last week.</p>
@@ -2462,10 +2481,10 @@
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.24s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">See your clients and work on a map</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">Today</span>Customer and job information sits in rows on a screen. Things that would be obvious on a map — where your work clusters, how far crews travel, which areas you barely cover, where demand is growing — stay hidden in a spreadsheet.</p>
@@ -2475,10 +2494,10 @@
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.32s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Skills and orchestration that compound</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">Today</span>Every tool is a separate destination. Staff jump between a dozen applications to finish one task, carrying context in their heads from one to the next, and any AI in the mix is a side trip rather than part of the work.</p>
@@ -2488,14 +2507,14 @@
         </article>
 
         <article class="uc uc-ai reveal" style="--d: 0.4s">
-          <button class="uc-head">
+          <h3 class="uc-title"><button class="uc-head">
             <span class="uc-title-text">Dashboards, reports and project visibility</span>
             <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-          </button>
+          </button></h3>
           <div class="uc-body">
             <div class="uc-body-inner">
               <p class="prob"><span class="tag tag-p">Today</span>Someone spends the first week of every month assembling a report by hand. Project status lives partly in a spreadsheet, partly in an inbox, and partly in one person's memory. By the time the figures are circulated they are old, and the decision has already been made without them.</p>
-              <p class="sol"><span class="tag tag-s">Connected</span>Live dashboards show what is actually happening — workload, response times, costs, which services are growing and where. Projects and tasks sit in one place the whole team can see, so nobody chases updates. Routine reports build and send themselves on a schedule, and the agent can summarise the trend in plain English instead of leaving you to read the chart.</p>
+              <p class="sol"><span class="tag tag-s">Connected</span>Live dashboards show what is happening — workload, response times, costs, which services are growing and where. Projects and tasks sit in one place the whole team can see, so nobody chases updates. Routine reports build and send themselves on a schedule, and the agent can summarise the trend in plain English instead of leaving you to read the chart.</p>
             </div>
           </div>
         </article>
@@ -2518,22 +2537,22 @@
         <div class="faq-grid" id="faqGrid">
 
           <article class="uc faq-card">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">What kinds of work can Power Automate actually automate?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
-                <p class="ans">Far more than shuffling spreadsheet rows. Automation can watch the places work actually arrives — Outlook and shared mailboxes, voicemail and phone systems, Teams or Slack messages, web forms, scanned paperwork — and turn that messy incoming traffic into structured data. From there it triggers whatever should happen next: pull out the key details, categorize the request, assign it to the right person or team, raise the task or ticket, notify whoever needs to know, update the other systems that hold the same record, and escalate anything that misses a deadline. If someone is following the same steps every time, it is usually a candidate.</p>
+                <p class="ans">Far more than shuffling spreadsheet rows. Automation can watch the places work arrives — Outlook and shared mailboxes, voicemail and phone systems, Teams or Slack messages, web forms, scanned paperwork — and turn that messy incoming traffic into structured data. From there it triggers whatever should happen next: pull out the key details, categorize the request, assign it to the right person or team, raise the task or ticket, notify whoever needs to know, update the other systems that hold the same record, and escalate anything that misses a deadline. If someone is following the same steps every time, it is usually a candidate.</p>
               </div>
             </div>
           </article>
 
           <article class="uc faq-card" style="--d: 0.05s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">How does AI help with manual data entry and extraction?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">AI document processing reads unstructured files — PDFs, scanned forms, invoices, emailed attachments — and returns structured fields you can store and query. Combined with an automated flow, a document that arrives by email can be read, validated and written into a database without anyone retyping it.</p>
@@ -2542,22 +2561,22 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.1s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Do we have to replace our existing systems?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
-                <p class="ans">It genuinely depends, and it is a decision we make together. Often the answer is no — connecting what you already run is faster, more affordable and far less disruptive than replacing it, and it protects the investment you have already made. But sometimes a system really is holding you back. In that case I will tell you plainly which software or systems I would recommend replacing or migrating and why, then work through the evaluation with you — weighing cost, risk, disruption and what your team can realistically support. You make the final call with a clear picture rather than a sales pitch.</p>
+                <p class="ans">It depends, and it is a decision we make together. Often the answer is no — connecting what you already run is faster, more affordable and far less disruptive than replacing it, and it protects the investment you have already made. But sometimes a system is holding you back. In that case I will tell you plainly which software or systems I would recommend replacing or migrating and why, then work through the evaluation with you — weighing cost, risk, disruption and what your team can realistically support. You make the final call with a clear picture rather than a sales pitch.</p>
               </div>
             </div>
           </article>
 
           <article class="uc faq-card" style="--d: 0.15s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Can automation work with our existing GIS?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">Yes. ArcGIS Enterprise and ArcGIS Online both provide connections that automation can read from and write to. More importantly, tools like FME and Python let me work with far more than the map layer — I can pull attribute data from multiple systems and databases, join it to your spatial records, check it for errors, and push the results back out to wherever they are needed. Common examples include keeping asset layers in step with a maintenance system, or plotting incoming service requests on a map automatically.</p>
@@ -2566,10 +2585,10 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.2s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">What is MCP, and why does it matter for AI at work?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">MCP (Model Context Protocol) is an open standard for connecting an AI agent to real systems and data, giving it controlled, permission-aware access to Microsoft 365, Google Workspace, ticketing systems, CRMs and databases. But MCP is only one piece. An agent also needs <strong>skills</strong> — repeatable procedures for the specific jobs your organization does — and <strong>orchestration</strong>, so agents, skills and your existing automations can pass work between them. Together those turn a general-purpose assistant into a working environment that grows with your business over time.</p>
@@ -2578,10 +2597,10 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.25s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Is it safe to let AI read our email and business systems?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">It can be, when access is scoped deliberately. Connections are configured to respect the permissions each user already has, limited to the systems you approve, and set to read-only wherever writing is not required. Actions that send or change something are kept behind human review. The right design question is not whether AI is allowed in, but exactly what it may see and what it may do.</p>
@@ -2590,10 +2609,10 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.3s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Do you only work with Microsoft and Esri products?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">No. Those come up often because so many organizations already pay for them, so using them costs nothing extra. But the right tool depends on what you already run and what you are trying to fix. I work with other automation platforms, other databases, open-source components and non-Esri mapping where those are the better fit. The goal is the outcome you need at a sensible cost, not loyalty to a particular vendor.</p>
@@ -2602,22 +2621,22 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.35s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Is mapping or GIS required to work with you?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
-                <p class="ans">Not at all. Many projects are pure automation and integration with no map anywhere in sight. Mapping is offered because it is genuinely useful when your work has a geographic pattern — customers spread across a region, crews travelling between sites, assets in the field. If that is not your situation, we simply skip it.</p>
+                <p class="ans">Not at all. Many projects are pure automation and integration with no map anywhere in sight. Mapping is offered because it is useful when your work has a geographic pattern — customers spread across a region, crews travelling between sites, assets in the field. If that is not your situation, we skip it.</p>
               </div>
             </div>
           </article>
 
           <article class="uc faq-card" style="--d: 0.4s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">When is it better to replace a system than automate around it?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">When the system cannot be integrated, cannot be automated, and can no longer be supported. Clear signs include paper forms still being filled in by hand, a spreadsheet doing a database's job, software past its end of support, or a vendor who has refused for years to modernize or provide any way to connect. At that point the cost of working around it has usually already exceeded the cost of replacing it — and I will tell you when I think that line has been crossed.</p>
@@ -2626,10 +2645,10 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.45s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Should we use open-source or the enterprise tools we already license?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">Whichever is more affordable to own over the long term — and that is about much more than the sticker price. If your ArcGIS or Power Platform licences already cover the need, using them is usually the better answer: no new spend, no new vendor, and your staff may already know the tools. Where they do not fit, open-source components can do the job without a recurring fee. The deciding factors are risk, maintenance and continuity — who can support it in three years, how easily your own team can take it over, and what happens if a vendor changes direction or an open-source project loses its maintainers. I weigh those with you project by project rather than defaulting to a favourite.</p>
@@ -2638,10 +2657,10 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.5s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">How much does workflow automation cost for a small organization?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">There are two different kinds of cost, and it helps to separate them. Automation and integration that does not involve AI can usually be scoped to a fixed price — the build is largely a one-off, and much of the capability may already be bundled in Microsoft 365 or Power Platform licences you hold, so the starting point is often lower than expected. AI is different. When a workflow sends documents or questions through an AI service, you pay for what you consume, more like a utility bill for water or electricity than a flat subscription. That is predictable once we measure your actual volumes, and I will estimate it before you commit rather than after the first invoice arrives.</p>
@@ -2650,10 +2669,10 @@
           </article>
 
           <article class="uc faq-card" style="--d: 0.55s">
-            <button class="uc-head">
+            <h3 class="uc-title"><button class="uc-head">
               <span class="uc-title-text">Where does Renospatial Solutions work?</span>
               <span class="uc-icon-wrap" aria-hidden="true"><svg class="uc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-            </button>
+            </button></h3>
             <div class="uc-body">
               <div class="uc-body-inner">
                 <p class="ans">Renospatial Solutions is based in Parksville on Vancouver Island and works with organizations across British Columbia and Canada. Most engagements run remotely, with on-site work available on Vancouver Island.</p>
@@ -2675,7 +2694,7 @@
       <div class="contact-grid">
         <div class="reveal">
           <p class="section-lede" style="margin-bottom: 1.1rem">
-            Every organization has work a computer should be doing — information typed in twice, documents nobody has time to read, reports assembled by hand, systems that will not talk to each other, and software that stopped earning its keep years ago. I help you work out which of those are actually worth fixing, then build the automation, integrations, AI agents and dashboards that fix them — using the tools you already pay for wherever they will do the job.
+            Every organization has work a computer should be doing — information typed in twice, documents nobody has time to read, reports assembled by hand, systems that will not talk to each other, and software that stopped earning its keep years ago. I help you work out which of those are worth fixing, then build the automation, integrations, AI agents and dashboards that fix them — using the tools you already pay for wherever they will do the job.
           </p>
           <p class="section-lede" style="margin-bottom: 1.1rem">
             That comes from a decade of GIS and IT management experience, working with you directly from the first assessment through to something your own team can run without me. Mapping if your work has a geographic side, and none if it does not. And if a piece of it will not pay for itself, I will tell you before we build it.
@@ -2881,13 +2900,18 @@
       if (!head) return;
       var isFaq = card.classList.contains("faq-card");
 
-      if (isMobile || isFaq) {
-        head.setAttribute("role", "button");
-        head.setAttribute("tabindex", "0");
+      var canCollapse = isMobile || isFaq;
+
+      // .uc-head is a real <button>, so it is already focusable and
+      // keyboard-operable — role and tabindex would be redundant. On
+      // desktop the card cannot collapse, so the button is disabled;
+      // otherwise keyboard users tab onto a control that looks
+      // interactive and does nothing when pressed.
+      head.disabled = !canCollapse;
+
+      if (canCollapse) {
         head.setAttribute("aria-expanded", card.classList.contains("is-open") ? "true" : "false");
       } else {
-        head.removeAttribute("role");
-        head.removeAttribute("tabindex");
         head.removeAttribute("aria-expanded");
         card.classList.remove("is-open");
       }
@@ -2899,18 +2923,12 @@
     if (!head) return;
     var isFaq = card.classList.contains("faq-card");
 
-    function toggleCard() {
+    // A native <button> already fires click for both Enter and Space, so
+    // a keydown handler here would toggle the card twice.
+    head.addEventListener("click", function () {
       if (window.innerWidth <= 768 || isFaq) {
         var isOpen = card.classList.toggle("is-open");
         head.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      }
-    }
-
-    head.addEventListener("click", toggleCard);
-    head.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        toggleCard();
       }
     });
   });
@@ -2938,7 +2956,11 @@
     });
   });
 
-  window.addEventListener("resize", initCollapsibleCards);
+  var collapseResizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(collapseResizeTimer);
+    collapseResizeTimer = setTimeout(initCollapsibleCards, 150);
+  });
   initCollapsibleCards();
 
   /* ---------- Scroll-spy: Highlight active nav link on scroll ---------- */
