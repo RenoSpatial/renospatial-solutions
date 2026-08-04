@@ -667,25 +667,204 @@
   }
 
   .rotator-line {
-    margin-top: 0.9rem;
-    font-size: clamp(1.3rem, 3.2vw, 2rem);
-    font-weight: 700;
+    margin-top: 1.1rem;
+    font-size: clamp(1.05rem, 2.5vw, 1.45rem);
+    font-weight: 600;
     color: var(--ink-soft);
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: flex-start;
-    gap: 0.55rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
     text-align: left;
   }
 
-  #rotator {
-    display: inline-block;
-    min-width: 7.5ch;
+  .service-label {
+    color: var(--ink-soft);
+    font-size: clamp(1.05rem, 2.5vw, 1.45rem);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .service-badge-wrap {
+    position: relative;
+    display: inline-flex;
+    perspective: 800px;
+    min-height: 2.8rem;
+    align-items: center;
+  }
+
+  @property --badge-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes badgeBeamRotate {
+    0% { --badge-angle: 0deg; }
+    100% { --badge-angle: 360deg; }
+  }
+
+  .service-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(18, 34, 56, 0.85);
+    border-radius: 999px;
+    padding: 0.45rem 1.25rem;
     color: var(--gold);
-    border-right: 3px solid var(--gold);
-    padding-right: 4px;
-    white-space: nowrap;
+    font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.45), 0 0 16px rgba(240, 197, 94, 0.2);
+    transform-origin: center center;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.38s ease, box-shadow 0.38s ease, border-color 0.38s ease;
+    will-change: transform, opacity, box-shadow;
+  }
+
+  /* Circulating conic border beam */
+  .service-badge::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.8px;
+    background: conic-gradient(
+      from var(--badge-angle, 0deg) at 50% 50%,
+      transparent 0%,
+      transparent 50%,
+      rgba(111, 163, 232, 0.5) 70%,
+      #f0c55e 88%,
+      #ffffff 94%,
+      transparent 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: badgeBeamRotate 5s linear infinite;
+  }
+
+  .service-badge.ignite {
+    box-shadow: 0 0 35px rgba(240, 197, 94, 0.65), 0 0 18px rgba(111, 163, 232, 0.4);
+  }
+
+  /* Horizontal hand-off: the outgoing service leaves to the right, the
+     incoming one enters from the left. flip-out is applied to the item
+     being retired; flip-in is set as the start state for its replacement
+     and then removed, so it slides to rest. */
+  .service-badge.flip-out {
+    transform: translateX(26px);
+    opacity: 0;
+  }
+
+  .service-badge.flip-in {
+    transform: translateX(-26px);
+    opacity: 0;
+  }
+
+  .service-text {
+    background: linear-gradient(90deg, #f7d98c, #ffffff 50%, #6fa3e8);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: textShimmer 6s linear infinite;
+  }
+
+  @keyframes textShimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  .service-ico {
+    flex-shrink: 0;
+    width: 1.2em;
+    height: 1.2em;
+    /* An <svg> clips to its viewBox by default. These icons animate with
+       scale(1.15) and rotate(45deg), which pushes them past the 24x24 box,
+       so without this they are visibly sliced off by an invisible square. */
+    overflow: visible;
+    filter: drop-shadow(0 0 6px rgba(240, 197, 94, 0.6));
+  }
+
+  /* Micro-ember spark particles container */
+  .badge-sparks-host {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 10;
+  }
+
+  .spark-ember {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: emberFloat 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  @keyframes emberFloat {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy)) scale(0.2);
+    }
+  }
+
+  /* Micro animations inside icons */
+  .ico-bolt-path {
+    fill: rgba(240, 197, 94, 0.95) !important;
+    stroke: #ffffff !important;
+    stroke-width: 1.8px !important;
+    filter: drop-shadow(0 0 8px #f0c55e) drop-shadow(0 0 2px #ffffff);
+    animation: boltPulse 2s ease-in-out infinite;
+  }
+  @keyframes boltPulse {
+    0%, 100% { opacity: 0.92; filter: drop-shadow(0 0 6px #f0c55e) drop-shadow(0 0 2px #ffffff); }
+    50% { opacity: 1; filter: drop-shadow(0 0 14px #f0c55e) drop-shadow(0 0 5px #ffffff); }
+  }
+
+  .ico-ai-star {
+    animation: aiStarPulse 2.4s ease-in-out infinite alternate;
+    transform-origin: 12px 12px;
+    filter: drop-shadow(0 0 8px #f0c55e);
+  }
+  @keyframes aiStarPulse {
+    from { transform: scale(0.9) rotate(0deg); }
+    to { transform: scale(1.15) rotate(45deg); filter: drop-shadow(0 0 12px #f0c55e) drop-shadow(0 0 4px #ffffff); }
+  }
+
+  .ico-link-node {
+    animation: linkNodePulse 1.8s ease-in-out infinite alternate;
+  }
+  @keyframes linkNodePulse {
+    from { transform: scale(0.85); }
+    to { transform: scale(1.15); filter: drop-shadow(0 0 6px #6fa3e8); }
+  }
+
+  .ico-ai-core {
+    animation: aiCoreBreathe 2.4s ease-in-out infinite alternate;
+    transform-origin: center;
+  }
+  @keyframes aiCoreBreathe {
+    from { transform: scale(0.9); opacity: 0.7; }
+    to { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 8px #f0c55e); }
+  }
+
+  .ico-gis-ring {
+    animation: gisRotate 8s linear infinite;
+    transform-origin: center;
+  }
+  @keyframes gisRotate {
+    to { transform: rotate(360deg); }
   }
 
   .hero p.lede {
@@ -2056,7 +2235,19 @@
     <div class="hero-inner">
       <span class="chip"><span class="dot"></span>Workflow Automation &bull; Systems Integration &bull; AI Adoption</span>
       <h1>Renospatial <span class="grad">Solutions</span></h1>
-      <p class="rotator-line"><span aria-hidden="true">Built for&nbsp;<span id="rotator">Innovation</span></span><span class="sr-only">Built for Innovation, Automation, and Integration</span></p>
+      <div class="rotator-line" aria-live="polite">
+        <span class="service-label">Specializing in</span>
+        <div class="service-badge-wrap">
+          <div class="badge-sparks-host" id="sparkHost" aria-hidden="true"></div>
+          <div id="rotator" class="service-badge" aria-hidden="true">
+            <svg class="service-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path class="ico-bolt-path" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="rgba(240, 197, 94, 0.95)"/>
+            </svg>
+            <span class="service-text">Workflow Automation</span>
+          </div>
+        </div>
+      </div>
+      <span class="sr-only">Specializing in Workflow Automation, Systems Integration, AI Agent Adoption, and Enterprise GIS</span>
       <p class="lede">Less manual work. Fewer things typed twice. Systems that finally talk to each other — built on the software your organization already pays for, with AI added where it earns its place.</p>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="#about">Learn More</a>
@@ -2844,30 +3035,101 @@
     revealEls.forEach(function (el) { el.classList.add("visible"); });
   }
 
-  /* ---------- Rotating keyword (type / erase) ---------- */
-  var words = ["Innovation", "Automation", "Integration"];
-  var rotator = document.getElementById("rotator");
+  /* ---------- Rotating Service Badge with Particle Spark Bursts & Shape Morph ---------- */
+  var services = [
+    {
+      text: "Workflow Automation",
+      icon: '<svg class="service-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="ico-bolt-path" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="rgba(240, 197, 94, 0.95)"/></svg>',
+      pattern: "gears"
+    },
+    {
+      text: "Systems Integration",
+      icon: '<svg class="service-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="ico-link-node" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="#6fa3e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path class="ico-link-node" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="#f0c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      pattern: "net"
+    },
+    {
+      text: "AI Agent Adoption",
+      icon: '<svg class="service-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="ico-ai-star" d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z" fill="rgba(240, 197, 94, 0.92)" stroke="#ffffff" stroke-width="1.2"/><circle class="ico-ai-core" cx="12" cy="12" r="3.5" fill="#6fa3e8" stroke="#ffffff" stroke-width="1"/></svg>',
+      pattern: "brain"
+    },
+    {
+      text: "Enterprise GIS",
+      icon: '<svg class="service-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g class="ico-gis-ring"><circle cx="12" cy="12" r="9" stroke="#6fa3e8" stroke-width="2"/><path d="M3.6 9h16.8M3.6 15h16.8" stroke="#6fa3e8" stroke-width="1.4"/><path d="M11.5 3a17 17 0 0 1 0 18M12.5 3a17 17 0 0 1 0 18" stroke="#f0c55e" stroke-width="1.8"/></g></svg>',
+      pattern: "globe"
+    }
+  ];
 
-  if (reduceMotion) {
-    rotator.textContent = words.join(" · ");
-    rotator.style.borderRight = "none";
-    rotator.style.whiteSpace = "normal";
-  } else {
-    var wi = 0, ci = words[0].length, deleting = false;
-    (function tick() {
-      if (animPaused) { setTimeout(tick, 400); return; }
-      var word = words[wi];
-      rotator.textContent = word.slice(0, ci);
-      var delay;
-      if (!deleting) {
-        if (ci < word.length) { ci++; delay = 90; }
-        else { deleting = true; delay = 1800; }
-      } else {
-        if (ci > 0) { ci--; delay = 45; }
-        else { deleting = false; wi = (wi + 1) % words.length; delay = 350; }
-      }
-      setTimeout(tick, delay);
-    })();
+  var rotator = document.getElementById("rotator");
+  var sparkHost = document.getElementById("sparkHost");
+
+  function triggerSparkBurst() {
+    if (!sparkHost || animPaused || reduceMotion) return;
+    var count = 14;
+    for (var i = 0; i < count; i++) {
+      var spark = document.createElement("span");
+      spark.className = "spark-ember";
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 18 + Math.random() * 32;
+      var dx = Math.cos(angle) * dist;
+      var dy = Math.sin(angle) * dist - 12;
+      var isGold = Math.random() < 0.65;
+      
+      spark.style.left = (15 + Math.random() * 70) + "%";
+      spark.style.top = (20 + Math.random() * 60) + "%";
+      spark.style.background = isGold ? "#f0c55e" : "#6fa3e8";
+      spark.style.boxShadow = isGold ? "0 0 8px #f0c55e" : "0 0 8px #6fa3e8";
+      spark.style.setProperty("--dx", dx + "px");
+      spark.style.setProperty("--dy", dy + "px");
+      
+      sparkHost.appendChild(spark);
+      (function (s) {
+        setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 850);
+      })(spark);
+    }
+  }
+
+  if (rotator) {
+    if (reduceMotion) {
+      rotator.innerHTML = services.map(function(s) { return s.icon + '<span class="service-text">' + s.text + '</span>'; }).join('<span style="margin:0 6px;color:var(--ink-soft)">&bull;</span>');
+    } else {
+      var sIdx = 0;
+      var isFlipping = false;
+
+      setInterval(function () {
+        if (animPaused || isFlipping) return;
+        isFlipping = true;
+
+        rotator.classList.add("ignite");
+        rotator.classList.add("flip-out");
+        triggerSparkBurst();
+
+        setTimeout(function () {
+          sIdx = (sIdx + 1) % services.length;
+          var item = services[sIdx];
+          rotator.innerHTML = item.icon + '<span class="service-text">' + item.text + '</span>';
+
+          // Jump straight to the entry position with the transition switched
+          // off. Without this the badge would animate from its exit point on
+          // the right across to the left, instead of appearing there.
+          rotator.style.transition = "none";
+          rotator.classList.remove("flip-out");
+          rotator.classList.add("flip-in");
+          void rotator.offsetWidth;
+
+          // transition back on, then release so it slides in from the left
+          rotator.style.transition = "";
+          rotator.classList.remove("flip-in");
+
+          if (heroField && heroField.triggerMorph) {
+            heroField.triggerMorph(item.pattern);
+          }
+          setTimeout(function() {
+            rotator.classList.remove("ignite");
+            isFlipping = false;
+          }, 350);
+        }, 420);
+      }, 3300);
+    }
   }
 
   /* ---------- Marquee: duplicate track for seamless loop ---------- */
@@ -3044,6 +3306,7 @@
   // roads: 0 — the drawn street grid supplies the structure instead
   var patternLinkMult = { net: 1, galaxy: 0.5, roads: 0, hole: 0.4, brain: 0.7, quest: 0.5 };
   var fields = [];
+  var heroField = null;   // assigned below; the service badge drives its pattern
 
   function createField(canvas, cfg) {
     var ctx = canvas.getContext("2d");
@@ -3110,6 +3373,64 @@
     g.fill();
   }
 
+  /* Shape-based patterns all behave the same way: sample a painter into
+     target points and let particles hover on them. Adding a shape means
+     writing a paintX() and listing it here. */
+  function shapePainterFor(name) {
+    if (name === "brain") return paintBrain;
+    if (name === "gears") return paintGears;
+    if (name === "globe") return paintGlobe;
+    return null;
+  }
+
+  /* Two meshing cogs — the shape behind "Workflow Automation". */
+  function paintGears(g) {
+    function cog(cx, cy, rOuter, rInner, teeth, colour) {
+      g.strokeStyle = colour;
+      g.lineWidth = 13;
+      g.lineCap = "round";
+      g.beginPath();
+      g.arc(cx, cy, rInner, 0, Math.PI * 2);
+      g.stroke();
+      g.lineWidth = 11;
+      for (var i = 0; i < teeth; i++) {
+        var a = (i / teeth) * Math.PI * 2;
+        g.beginPath();
+        g.moveTo(cx + Math.cos(a) * (rInner + 4), cy + Math.sin(a) * (rInner + 4));
+        g.lineTo(cx + Math.cos(a) * rOuter, cy + Math.sin(a) * rOuter);
+        g.stroke();
+      }
+    }
+    cog(118, 178, 92, 60, 9, "#6fa3e8");   // large gear
+    cog(212, 96, 62, 38, 7, "#f0c55e");    // small gear, meshing
+  }
+
+  /* Globe with graticule — the shape behind "Enterprise GIS". */
+  function paintGlobe(g) {
+    g.strokeStyle = "#6fa3e8";
+    g.lineWidth = 13;
+    g.lineCap = "round";
+    g.beginPath();
+    g.arc(150, 150, 120, 0, Math.PI * 2);
+    g.stroke();
+
+    g.lineWidth = 8;
+    // parallels
+    [-70, -35, 0, 35, 70].forEach(function (dy) {
+      var rx = Math.sqrt(Math.max(120 * 120 - dy * dy, 0));
+      g.beginPath();
+      g.ellipse(150, 150 + dy, rx, rx * 0.22, 0, 0, Math.PI * 2);
+      g.stroke();
+    });
+    // meridians
+    g.strokeStyle = "#f0c55e";
+    [0.28, 0.62, 1].forEach(function (k) {
+      g.beginPath();
+      g.ellipse(150, 150, 120 * k, 120, 0, 0, Math.PI * 2);
+      g.stroke();
+    });
+  }
+
   /* Line-art brain (side profile) for the neural pattern. */
   function paintBrain(g) {
     g.strokeStyle = "#6fa3e8";
@@ -3164,8 +3485,9 @@
      from wherever the particles currently are. */
   function initPattern(w, h, now) {
     var brainPts = null, brainSc = 1, brainOX = 0, brainOY = 0, brainStride = 1;
-    if (pattern === "brain") {
-      brainPts = samplePoints(paintBrain);
+    var shapePainter = shapePainterFor(pattern);
+    if (shapePainter) {
+      brainPts = samplePoints(shapePainter);
       for (var s = brainPts.length - 1; s > 0; s--) {
         var z = Math.floor(Math.random() * (s + 1));
         var tmp = brainPts[s]; brainPts[s] = brainPts[z]; brainPts[z] = tmp;
@@ -3256,7 +3578,7 @@
           p.laneX = (si + 0.5) * w / roadGX;
           p.off = p.x - p.laneX;
         }
-      } else if (pattern === "brain") {
+      } else if (shapePainter) {
         var bp = brainPts[(i * brainStride) % brainPts.length];
         p.bhx = brainOX + bp.x * brainSc;
         p.bhy = brainOY + bp.y * brainSc;
@@ -3377,8 +3699,8 @@
       // No motion streak here — a car that wraps the edge or turns at an
       // intersection jumps position, which would draw a full-width flash.
       p.fire = p.gold ? 0.95 : 0.08;
-    } else if (pattern === "brain") {
-      // neural web: dots hover on the brain wiring, synapses firing
+    } else if (shapePainterFor(pattern)) {
+      // shape patterns: dots hover on the sampled outline, points firing
       p.x += (p.bhx - p.x) * 0.08 + Math.sin(now / 480 + i * 1.3) * 0.35;
       p.y += (p.bhy - p.y) * 0.08 + Math.cos(now / 520 + i * 0.7) * 0.35;
       var f = Math.sin(now / 1000 * (p.fspd * 6) + p.fph);
@@ -3961,6 +4283,20 @@
           phaseStart = performance.now();
           start();
         }
+      },
+
+      /* Switch this field to a named pattern on demand — used by the hero
+         service badge so the particles match the service being shown.
+         Deliberately does NOT touch phaseStart or driftDur, and refuses to
+         run unless the field is drifting, so the logo morph cycle still
+         happens on schedule instead of being reset every few seconds. */
+      triggerMorph: function (name) {
+        if (!name || reduceMotion || mode !== "drift") return;
+        var known = shapePainterFor(name) ||
+                    ["net", "galaxy", "roads", "hole", "quest"].indexOf(name) !== -1;
+        if (!known) return;
+        pattern = name;
+        initPattern(host.clientWidth, host.clientHeight, performance.now());
       }
     };
     fields.push(api);
@@ -3968,7 +4304,8 @@
   }
 
   /* --- one field per section --- */
-  createField(document.getElementById("net"), {
+  // captured so the hero service badge can drive its pattern
+  heroField = createField(document.getElementById("net"), {
     patterns: ["hole"], morph: true
   });
 

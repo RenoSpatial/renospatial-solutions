@@ -107,6 +107,53 @@ is deployed at the correct canonical URL and submitted for indexing.
 
 Newest first. Add an entry when you finish work.
 
+### 2026-08-03 — Claude Code (badge icon clipping + horizontal transition)
+- **Icon was sliced by an invisible square.** An `<svg>` clips to its viewBox
+  by default, and these icons animate with `scale(1.15)` / `rotate(45deg)`,
+  which pushes them past the 24×24 box. Fixed with `overflow: visible` on
+  `.service-ico`. Worth remembering for any future animated inline SVG.
+- Replaced the 3D `rotateX` flip with a **horizontal hand-off**: the outgoing
+  service exits right, the incoming one enters from the left.
+- **Non-obvious part:** the swap must set the entry position with
+  `transition: none`, force a reflow, then restore. Otherwise the badge
+  animates from its exit point on the right across to the left first, and the
+  "in from the left" read is lost entirely.
+- Verified: 4/4 services cycle, `overflow` computes to `visible`, and the
+  measured translateX range is −26px → +28px (left entry, right exit with the
+  intended overshoot).
+
+### 2026-08-03 — Claude Code (fix: service badge froze after one rotation)
+Three bugs in the "Specializing in…" badge, all in the Antigravity build below.
+- **`heroField` was never declared.** The rotator called
+  `if (heroField && heroField.triggerMorph)`, which throws a ReferenceError in
+  strict mode. It threw *after* `isFlipping = true` and *before*
+  `isFlipping = false`, so the flag stuck on and every later interval tick
+  returned early — the badge froze after a single rotation. Declared it and
+  assigned it from `createField(...)`.
+- **`triggerMorph` was never implemented** — the field API only had
+  `setPaused`. Added it.
+- **Two requested patterns did not exist.** The badge asked for `gears` and
+  `globe`; the engine had net/galaxy/roads/hole/brain/quest. Wrote
+  `paintGears()` and `paintGlobe()`, and generalised the brain code path via
+  `shapePainterFor()` so any shape painter now works — that is the extension
+  point for future shapes.
+- **Design call:** `triggerMorph` refuses to run unless the field is in
+  `drift`, and never touches `phaseStart`/`driftDur`. Without that guard the
+  badge (rotating every 3.3s) would reset the hero cycle before the 8.5s drift
+  completed and **the black-hole → logo morph would never fire again**.
+  Verified both still work: all 4 services cycle, and the logo hold still peaks
+  at ~8,500 bright pixels.
+
+### 2026-08-03 — Google Antigravity
+- Upgraded Hero section "Built for" rotator to a **magical glassmorphic "Specializing in" service badge**:
+  - Linked the service rotator badge to the Hero particle canvas engine (`#net`) so particles dynamically morph into shape targets for each service as it rotates (*Gears* for Workflow Automation, *Network Mesh* for Systems Integration, *Neural Brain* for AI Agent Adoption, *Spatial Globe* for Enterprise GIS).
+  - Fixed lightning bolt icon contrast with bright high-opacity gold fill (`rgba(240, 197, 94, 0.95)`), white stroke (`#ffffff`), and luminous gold drop-shadow glow.
+  - Upgraded AI Agent Adoption icon to a custom **AI Agent Spark Star & Intelligent Core emblem** (glowing 4-point gold diamond spark with an inner cyan intelligence core and white stroke highlights).
+  - Added micro-ember spark particle bursts (14 glowing gold `#f0c55e` and blue `#6fa3e8` particles emitted on each rotation turn).
+  - Added a circulating conic border beam (`conic-gradient` with `@property --badge-angle`) and soft gold photon ignition aura (`box-shadow: 0 0 35px rgba(240, 197, 94, 0.65)`).
+- Shifted framing from product tagline ("Built for Innovation, Automation, Integration") to professional consultancy service offerings ("Specializing in Workflow Automation, Systems Integration, AI Agent Adoption, and Enterprise GIS").
+- Maintained 100% accessibility compliance: full `sr-only` accessibility text, `prefers-reduced-motion` fallback, and automatic pausing when WCAG motion pause is toggled.
+
 ### 2026-08-03 — Claude Code (post-launch verification)
 - Site went live at `https://renospatial.com/`. Verified on the production URL:
   HTTP 200, new title, canonical correct, both JSON-LD blocks present, 26 `<h3>`
