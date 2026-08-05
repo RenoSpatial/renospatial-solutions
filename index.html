@@ -3683,7 +3683,8 @@
         p.fire = 0.65;   // lensed light ring glows intensely
       } else {
         p.trail = true;
-        p.hang += 16 / Math.pow(p.hrad, 1.4);   // Smooth Keplerian whip rotation
+        // Inner matter moves faster, but stays measured rather than comet-like.
+        p.hang += 10 / Math.pow(p.hrad, 1.4);
         // gravity: smooth acceleration toward event horizon
         p.hrad -= 0.18 + 75 / Math.max(p.hrad - p.core * 0.7, 10);
         var reborn = false;
@@ -4070,11 +4071,36 @@
       ctx.restore();
     }
 
-    /* ---- black hole: dark event horizon + gold photon ring ---- */
+    /* ---- black hole: lensed accretion disk, event horizon + photon ring ---- */
     var holeTarget = (pattern === "hole" && mode === "drift") ? 1 : 0;
     holeVis += (holeTarget - holeVis) * 0.05;
     if (holeVis > 0.01) {
       var hcx = w / 2, hcy = h / 2, Rc = Math.min(w, h) * 0.09;
+      ctx.save();
+      ctx.globalAlpha = holeVis;
+      // A soft, flattened disk underlay gives the orbiting dots a visible
+      // plane. Its gentle pulse adds depth without making the hero frantic.
+      var diskPulse = 0.88 + 0.12 * Math.sin(now / 1900);
+      ctx.translate(hcx, hcy);
+      ctx.scale(1, 0.3);
+      var disk = ctx.createRadialGradient(0, 0, Rc * 0.92, 0, 0, Rc * 5.2);
+      disk.addColorStop(0, "rgba(2,4,9,0)");
+      disk.addColorStop(0.16, "rgba(240,197,94," + (0.22 * diskPulse).toFixed(3) + ")");
+      disk.addColorStop(0.36, "rgba(111,163,232," + (0.10 * diskPulse).toFixed(3) + ")");
+      disk.addColorStop(0.68, "rgba(111,163,232,0.025)");
+      disk.addColorStop(1, "rgba(111,163,232,0)");
+      ctx.fillStyle = disk;
+      ctx.beginPath();
+      ctx.arc(0, 0, Rc * 5.2, 0, Math.PI * 2);
+      ctx.fill();
+      // The narrow inner ellipse is the visible edge of the lensed disk.
+      ctx.beginPath();
+      ctx.ellipse(0, 0, Rc * 2.05, Rc * 2.05, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(240,197,94," + (0.3 * diskPulse).toFixed(3) + ")";
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      // Restore the canvas's device-pixel transform before drawing the core.
+      ctx.restore();
       ctx.save();
       ctx.globalAlpha = holeVis;
       // photon ring glow

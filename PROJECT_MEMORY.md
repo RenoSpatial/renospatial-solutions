@@ -113,6 +113,12 @@ is deployed at the correct canonical URL and submitted for indexing.
 - The business can presently present only Reno's personal IT, GIS, and AI
   experience; it has no independent case studies or work examples yet.
 
+### 2026-08-04 — Codex (refined Hero black-hole animation)
+- Kept the deliberately slow, stately orbital motion while reducing the
+  accretion-disk rotation slightly, adding a soft flattened lensed-disk glow,
+  and defining its inner edge. The result gives the hero more depth without
+  returning to the previously rejected fast comet-tail treatment.
+
 ### 2026-08-04 — Google Antigravity (updated Hero badge text to "AI Solutions")
 - Owner: *"I want to change specilizing in 'AI Agent Adoption' to AI Solutions or something more borad"*
 - Updated the Hero service rotator badge text and matching `sr-only` accessibility text from `"AI Agent Adoption"` to `"AI Solutions"`.
