@@ -103,9 +103,48 @@ is deployed at the correct canonical URL and submitted for indexing.
 
 ---
 
-## Changelog
+### 2026-08-04 — Google Antigravity (updated Hero badge text to "AI Solutions")
+- Owner: *"I want to change specilizing in 'AI Agent Adoption' to AI Solutions or something more borad"*
+- Updated the Hero service rotator badge text and matching `sr-only` accessibility text from `"AI Agent Adoption"` to `"AI Solutions"`.
+- Verified: All 4 §7 verification checks passed cleanly.
 
-Newest first. Add an entry when you finish work.
+### 2026-08-04 — Google Antigravity (completely removed WHAT I WORK WITH section)
+- Owner: *"Remove WHAT I WORK WITH section entirely, doesn't create values for my site"*
+- Completely removed `.hero-tech-row` HTML block, tech pills, SVG icons, label, and all associated CSS animations/media queries from `index.html`.
+- Restored direct, uninterrupted vertical transition from the Hero section into `<section id="about">`.
+- Cleaned up accessibility toolbar CSS references (`.tech-pill`, `.tech-pill-sym`).
+- Verified: All 4 §7 verification checks passed cleanly.
+
+### 2026-08-04 — Google Antigravity (integrated tech pills into Hero with animated icons)
+- Owner: *"what i work with but not limited to with animated icons"*
+- Updated the section label to **`What I work with • but not limited to`**.
+- Integrated 7 animated SVG micro-icons for each technology pill in the Hero section:
+  - *ArcGIS Enterprise*: Soft pulsing gold/blue fill breathing animation (`.sym-enterprise-rect`).
+  - *ArcGIS Online*: Alternating spatial node scale and drop-shadow glow (`.sym-ago-node1`, `.sym-ago-node2`).
+  - *Power Automate*: Continuous dashed line flow animation with arrow nudge motion (`.sym-pa-flow`, `.sym-pa-arrow`).
+  - *FME*: Sequential traveling node light pulses across the ETL pipeline (`.sym-fme-dot`).
+  - *AI agents & MCP*: Shimmering neural web node glow and connection line pulses (`.sym-mcp-node`).
+  - *Maps APIs*: Dynamic crosshair scan lines and tick mark brightness shift (`.sym-maps-cross`, `.sym-maps-ticks`).
+  - *Systems Integration*: Animated dashed record bridge flowing between connected systems (`.sym-sys-bridge`, `.sym-sys-box1`, `.sym-sys-box2`).
+- Fully WCAG 2.2.2 compliant: animations pause when `prefers-reduced-motion` is active or WCAG motion pause (`.anim-paused`) is toggled.
+- Verified: All 4 §7 verification checks passed cleanly.
+
+### 2026-08-03 — Claude Code (replaced the scrolling marquee)
+- Owner: *"marquee-track just too common for AI built site."* Agreed — an
+  infinite ticker is a template tell, and it conveys nothing: names scroll past
+  faster than anyone reads them, with no context for why the tool is there.
+- Replaced it with a **legend band**: a map key. Each tool gets its own
+  symbology (polygon fill, point pair, dashed arrow, route with vertices, node
+  cluster, graticule, linked boxes) plus a line saying what it does *for the
+  client*. Static, scannable, on-brand for a spatial practice.
+- Deleted 52 lines of dead `.marquee` CSS, the `scrollx` keyframes, and the
+  `marqueeTrack.innerHTML +=` JS — that JS would have thrown a TypeError on the
+  missing element.
+- A11y: contrast mode now targets `.legend-band`; **"Hide Graphics" hides only
+  `.legend-sym`**, because unlike the marquee this band is content, not
+  decoration — hiding the text would remove information.
+- Verified: 7 entries, 3 columns desktop / 1 column mobile, no horizontal
+  overflow, CSS braces balanced (476/476), console clean.
 
 ### 2026-08-03 — Claude Code (badge icon clipping + horizontal transition)
 - **Icon was sliced by an invisible square.** An `<svg>` clips to its viewBox

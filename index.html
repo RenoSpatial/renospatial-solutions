@@ -247,7 +247,6 @@
   html.a11y-contrast-1 .hero,
   html.a11y-contrast-1 #services,
   html.a11y-contrast-1 #contact,
-  html.a11y-contrast-1 .marquee,
   html.a11y-contrast-1 footer { background: #000 !important; color: #fff !important; }
   html.a11y-contrast-1 .card,
   html.a11y-contrast-1 .contact-panel,
@@ -277,8 +276,7 @@
   html.a11y-noimg-1 #net,
   html.a11y-noimg-1 .section-fx,
   html.a11y-noimg-1 .map-lines,
-  html.a11y-noimg-1 .card .icon,
-  html.a11y-noimg-1 .marquee { display: none !important; }
+  html.a11y-noimg-1 .card .icon { display: none !important; }
   html.a11y-noimg-1 .hero { background: var(--bg) !important; }
 
   /* --- Dyslexia-friendly typeface --- */
@@ -978,59 +976,8 @@
     50% { transform: translate(-50%, 8px); opacity: 1; }
   }
 
-  /* ---------- Tech marquee ---------- */
-  .marquee {
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    background: var(--bg-soft);
-    overflow: hidden;
-    padding: 1.1rem 0;
-    position: relative;
-  }
 
-  .marquee::before,
-  .marquee::after {
-    content: "";
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 90px;
-    z-index: 2;
-    pointer-events: none;
-  }
-  .marquee::before { left: 0; background: linear-gradient(90deg, var(--bg-soft), transparent); }
-  .marquee::after  { right: 0; background: linear-gradient(-90deg, var(--bg-soft), transparent); }
 
-  .marquee-track {
-    display: flex;
-    gap: 3.5rem;
-    width: max-content;
-    animation: scrollx 28s linear infinite;
-  }
-
-  .marquee:hover .marquee-track { animation-play-state: paused; }
-
-  @keyframes scrollx {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-
-  .marquee span {
-    font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 3.5rem;
-  }
-
-  .marquee span::after {
-    content: "◆";
-    font-size: 0.6rem;
-    color: var(--gold);
-  }
 
   /* ---------- Sections ---------- */
   section { padding: 6rem 0; position: relative; overflow: hidden; }
@@ -2259,7 +2206,7 @@
           </div>
         </div>
       </div>
-      <span class="sr-only">Specializing in Workflow Automation, Systems Integration, AI Agent Adoption, and Enterprise GIS</span>
+      <span class="sr-only">Specializing in Workflow Automation, Systems Integration, AI Solutions, and Enterprise GIS</span>
       <p class="lede">Less manual work. Fewer things typed twice. Systems that finally talk to each other — built on the software your organization already pays for, with AI added where it earns its place.</p>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="#about">Learn More</a>
@@ -2267,20 +2214,6 @@
       </div>
     </div>
     <a class="scroll-hint" href="#about" aria-label="Scroll to About section">▾</a>
-  </div>
-
-  <!-- ============ Tech marquee ============ -->
-  <p class="sr-only">Technologies: ArcGIS Enterprise, ArcGIS Online, Microsoft Power Platform, FME, Generative AI, Maps APIs, and Systems Integration.</p>
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track" id="marqueeTrack">
-      <span>ArcGIS Enterprise</span>
-      <span>ArcGIS Online</span>
-      <span>Microsoft Power Platform</span>
-      <span>FME</span>
-      <span>Generative AI</span>
-      <span>Maps APIs</span>
-      <span>Systems Integration</span>
-    </div>
   </div>
 
   <!-- ============ About / Pillars ============ -->
@@ -3060,7 +2993,7 @@
       pattern: "net"
     },
     {
-      text: "AI Agent Adoption",
+      text: "AI Solutions",
       icon: '<svg class="service-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="ico-ai-star" d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z" fill="rgba(240, 197, 94, 0.92)" stroke="#ffffff" stroke-width="1.2"/><circle class="ico-ai-core" cx="12" cy="12" r="3.5" fill="#6fa3e8" stroke="#ffffff" stroke-width="1"/></svg>',
       pattern: "brain"
     },
@@ -3144,9 +3077,8 @@
     }
   }
 
-  /* ---------- Marquee: duplicate track for seamless loop ---------- */
-  var track = document.getElementById("marqueeTrack");
-  track.innerHTML += track.innerHTML;
+  /* The scrolling marquee was replaced by the static legend band, so
+     there is no track to duplicate any more. */
 
   /* ---------- 3D tilt on pillar cards ---------- */
   if (!reduceMotion && window.matchMedia("(hover: hover)").matches) {
