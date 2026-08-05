@@ -42,6 +42,10 @@ with 12 questions), `robots.txt`, `sitemap.xml`.
 - Cost is explained in two kinds: non-AI automation can be **fixed price**;
   AI processing is **pay-as-you-go, like a utility bill**. The owner considers
   this an important expectation to set.
+- **Do not use the owner's Town employment, Town-derived work, awards, or
+  credibility on this personal-business site.** Renospatial's available
+  credibility is Reno's personal IT, GIS, and AI experience; it does not yet
+  have business case studies or work examples to showcase.
 - The Innovation / Automation / Integration trio is brand language from the
   original site. Keep the three names.
 
@@ -102,6 +106,12 @@ terms like *"workflow automation consulting"*. None of it counts until the site
 is deployed at the correct canonical URL and submitted for indexing.
 
 ---
+
+### 2026-08-04 — Codex (recorded business-credibility boundary)
+- Owner does **not** want Town employment, Town work, awards, or other Town
+  credibility used on Renospatial. Do not suggest it as a trust signal.
+- The business can presently present only Reno's personal IT, GIS, and AI
+  experience; it has no independent case studies or work examples yet.
 
 ### 2026-08-04 — Google Antigravity (updated Hero badge text to "AI Solutions")
 - Owner: *"I want to change specilizing in 'AI Agent Adoption' to AI Solutions or something more borad"*
